@@ -1,20 +1,4 @@
-# Mvcli
+## Mvcli
 
-## Installation
-
-```bash
-gem install mvcli
-```
-
-
-## Usage
-
-```bash
-mvcli create application my-app
-
-Gemfile
-app/controllers
-app/providers
-app/models
-app/routes
-```
+It's terribly frustrating when repos don't have a good README. But a
+bad readme is worse than no README at all.
