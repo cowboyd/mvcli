@@ -5,4 +5,5 @@ gemspec
 
 gem "rake"
 gem "rspec"
+gem "rspec-given"
 gem "rspec-spies"
