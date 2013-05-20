@@ -1,14 +1,25 @@
 require_relative "middleware"
 require_relative "command"
+require_relative "router"
 
 module MVCLI
   class App
+
     def initialize
-      @stack = Middleware.new
+      @middleware = Middleware.new
+      @middleware << Router.new
     end
 
     def call(command)
-      @stack.call command
+      @middleware.call command
+    end
+
+    def root
+      self.class.root or fail "Invalid App: undefined application root directory"
+    end
+
+    class << self
+      attr_accessor :root
     end
 
     def main(argv = ARGV.dup, input = $stdin, output = $stdout, log = $stderr, env = ENV.dup)
