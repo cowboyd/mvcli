@@ -4,18 +4,21 @@ require_relative "router"
 
 module MVCLI
   class App
-
     def initialize
-      @middleware = Middleware.new
-      @middleware << Router.new
+      @router = Router.new
+      @router.instance_eval route_file.read, route_file.to_s, 1
     end
 
     def call(command)
-      @middleware.call command
+      @router.call command
     end
 
     def root
       self.class.root or fail "Invalid App: undefined application root directory"
+    end
+
+    def route_file
+      root.join 'app/routes.rb'
     end
 
     class << self
