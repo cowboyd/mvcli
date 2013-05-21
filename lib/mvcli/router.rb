@@ -7,28 +7,38 @@ module MVCLI
 
     def initialize(actions = nil)
       @actions = actions || Map.new
-      @root = Map.new
+      @routes = []
     end
 
-    def root(options = {})
-      action = options[:to] or fail InvalidRoute, "root routes must specify an action with ':to =>' E.g. root :to => 'foo#bar'"
-      verbs = [options[:via] || :help].flatten
-      verbs.each do |verb|
-        @root[verb] = action
-      end
+    def match(options)
+      pattern, action = options.first
+      options.delete pattern
+      @routes << Route.new(pattern, @actions[action], options)
     end
 
     def call(command)
-      verb = command.argv.first || 'help'
-      path = command.argv.slice(1..-1) || []
-      if path.empty?
-        if action_name = @root[verb]
-          if action = @actions[action_name]
-            return action.call command
-          end
-        end
+      if route = @routes.find {|r| r.matches? command}
+        return route.call command
       end
-      fail RoutingError, "#{path.join(':')} does not respond to #{verb}"
+      fail RoutingError, "no route matches '#{command.argv.join ' '}'"
+    end
+
+    class Route
+      def initialize(pattern, action, options = {})
+        @pattern, @action, @options = pattern.to_s, action, options
+      end
+
+      def matches?(command)
+        segments = @pattern.split /\s+/
+        segments.each_with_index do |s, i|
+          return false unless command.argv[i] && s.to_s == command.argv[i]
+        end
+        return true
+      end
+
+      def call(command)
+        @action.call command
+      end
     end
   end
 end
