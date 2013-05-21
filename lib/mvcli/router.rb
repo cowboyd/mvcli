@@ -13,7 +13,7 @@ module MVCLI
     def match(options)
       pattern, action = options.first
       options.delete pattern
-      @routes << Route.new(pattern, @actions[action], options)
+      @routes << Route.new(pattern, @actions, action, options)
     end
 
     def call(command)
@@ -24,8 +24,8 @@ module MVCLI
     end
 
     class Route
-      def initialize(pattern, action, options = {})
-        @pattern, @action, @options = pattern.to_s, action, options
+      def initialize(pattern, actions, action, options = {})
+        @pattern, @actions, @action, @options = pattern.to_s, actions, action, options
       end
 
       def matches?(command)
@@ -37,7 +37,8 @@ module MVCLI
       end
 
       def call(command)
-        @action.call command
+        action = @actions[@action] or fail "no action found for #{@action}"
+        action.call command
       end
     end
   end
