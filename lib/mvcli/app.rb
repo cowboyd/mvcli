@@ -1,11 +1,12 @@
 require_relative "middleware"
 require_relative "command"
+require_relative "actions"
 require_relative "router"
 
 module MVCLI
   class App
     def initialize
-      @router = Router.new
+      @router = Router.new Actions.new root
       @router.instance_eval route_file.read, route_file.to_s, 1
     end
 

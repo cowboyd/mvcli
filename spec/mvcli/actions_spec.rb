@@ -4,11 +4,10 @@ require "mvcli/actions"
 describe "MVCLI::Actions" do
   Given(:loader) {mock(:Loader)}
   Given(:renderer) {mock(:Renderer, :render => true)}
-  Given(:actions) {MVCLI::Actions.new loader, renderer}
+  Given(:actions) {MVCLI::Actions.new '/root', loader, renderer}
 
   context "when the loader cannot find an appropriate controller" do
-    Given {loader.stub(:load)}
-
+    Given {loader.stub(:load) {fail LoadError}}
     When(:action) {actions['foo']}
     Then {action.should_not be_nil}
 

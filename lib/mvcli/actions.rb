@@ -1,8 +1,11 @@
+require_relative "loader"
+require_relative "renderer"
+
 module MVCLI
   class Actions
-    def initialize(loader, renderer)
-      @loader = loader
-      @renderer = renderer
+    def initialize(root, loader = nil, renderer = nil)
+      @loader = loader || Loader.new(root)
+      @renderer = renderer || Renderer.new(root)
     end
 
     def [](key)
@@ -20,10 +23,10 @@ module MVCLI
 
       def call(command)
         controller = @loader.load :controller, @controller
-        fail LoadError, "no such controller: #{@controller}" unless controller
         context = controller.send @method
         path = [@controller, @method].join('/')
         @renderer.render command.output, path, context
+        return 0
       end
     end
   end
