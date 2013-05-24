@@ -7,14 +7,21 @@ module MVCLI
     UnsatisfiedRequirement = Class.new StandardError
     MissingScope = Class.new StandardError
 
+    module ClassMethods
+      def requires(*deps)
+        deps.each do |dep|
+          self.define_method(dep) {Scope[dep]}
+        end
+      end
+    end
+
     class Scope
       def initialize(provisioner)
         @provisioner = provisioner
-        @values = Map.new
       end
 
       def [](name)
-        @values[name] ||= @provisioner[name]
+        @provisioner[name]
       end
 
       def evaluate
@@ -42,13 +49,8 @@ module MVCLI
       end
     end
 
+    class Provisioner
 
-    module ClassMethods
-      def requires(*deps)
-        deps.each do |dep|
-          self.define_method(dep) {Scope[dep]}
-        end
-      end
     end
   end
 end
