@@ -1,5 +1,6 @@
 require "map"
 require "active_support/concern"
+require "active_support/dependencies"
 
 module MVCLI
   module Provisioning
@@ -50,7 +51,10 @@ module MVCLI
     end
 
     class Provisioner
-
+      def [](name)
+        provider = "#{name.capitalize}Provider".constantize.new
+        provider.value
+      end
     end
   end
 end
