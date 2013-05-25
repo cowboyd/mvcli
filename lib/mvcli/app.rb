@@ -2,16 +2,21 @@ require_relative "middleware"
 require_relative "command"
 require_relative "actions"
 require_relative "router"
+require_relative "provisioning"
 
 module MVCLI
   class App
     def initialize
       @router = Router.new Actions.new root
       @router.instance_eval route_file.read, route_file.to_s, 1
+      ActiveSupport::Dependencies.autoload_paths << root.join('app/providers')
+      @middleware = Middleware.new
+      @middleware << Provisioning::Middleware.new
+      @middleware << @router
     end
 
     def call(command)
-      @router.call command
+      @middleware.call command
     end
 
     def root

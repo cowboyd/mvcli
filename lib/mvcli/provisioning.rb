@@ -11,7 +11,7 @@ module MVCLI
     module ClassMethods
       def requires(*deps)
         deps.each do |dep|
-          self.define_method(dep) {Scope[dep]}
+          self.send(:define_method, dep) {Scope[dep]}
         end
       end
     end
@@ -56,5 +56,14 @@ module MVCLI
         provider.value
       end
     end
+
+    class Middleware
+      def call(command)
+        Scope.new(Provisioner.new).evaluate do
+          yield command
+        end
+      end
+    end
+    ::Object.send :include, self
   end
 end
