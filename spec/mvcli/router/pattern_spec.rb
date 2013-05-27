@@ -8,7 +8,7 @@ describe "MVCLI::Router::Pattern" do
     context "when matched against unrelated content" do
       When(:match) {pattern.match %w(five six seven)}
       Then {!match.matches?}
-      Then {!match.exhaustive?}
+      And {!match.exhaustive?}
       And {!match.partial?}
       And {!match.satisfied?}
     end
