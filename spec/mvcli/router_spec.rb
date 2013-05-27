@@ -27,12 +27,14 @@ describe "MVCLI::Router" do
     Then {@command.argv.should eql ['bam']}
   end
 
-  context "with a route with dynamic segments" do
-    Given {router.match 'show loadbalancer :name' => 'loadbalancers#show'}
-    When(:result) {invoke 'show loadbalancer 6'}
+  context "with a route with captures" do
+    Given {router.match 'show loadbalancer :id' => 'loadbalancers#show'}
+    When {invoke 'show loadbalancer 6'}
+    Then {@action.should eql 'loadbalancers#show'}
+    And {@command.argv == ['show' 'loadbalancer' '6']}
   end
 
-  def invoke(*args)
-    router.call mock(:Command, :argv => args)
+  def invoke(route = '')
+    router.call mock(:Command, :argv => route.split(/\s+/))
   end
 end

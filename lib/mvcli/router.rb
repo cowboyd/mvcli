@@ -1,4 +1,5 @@
 require "map"
+require_relative "router/pattern"
 
 module MVCLI
   class Router
@@ -25,15 +26,12 @@ module MVCLI
 
     class Route
       def initialize(pattern, actions, action, options = {})
-        @pattern, @actions, @action, @options = pattern.to_s, actions, action, options
+        @pattern = Pattern.new pattern.to_s
+        @actions, @action, @options = actions, action, options
       end
 
       def matches?(command)
-        segments = @pattern.split /\s+/
-        segments.each_with_index do |s, i|
-          return false unless command.argv[i] && s.to_s == command.argv[i]
-        end
-        return true
+        @pattern.match(command.argv).matches?
       end
 
       def call(command)
