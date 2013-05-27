@@ -7,13 +7,13 @@ module MVCLI
         @matchers = compile pattern
       end
 
-      def match(input, consumed = [], unsatisfied = @matchers, satisfied = [], bindings = Map.new)
-        matcher = unsatisfied.first
-        value = input.first
+      def match(input, consumed = [], matchers = @matchers, satisfied = [], bindings = Map.new)
+        matcher, *unsatisfied = *matchers
+        value, *rest = *input
         unless matcher && value && matcher.matches?(value)
-          Match.new input, consumed, unsatisfied, satisfied, bindings
+          Match.new input, consumed, matchers, satisfied, bindings
         else
-          match input.slice(1..-1), consumed + [value], unsatisfied.slice(1..-1), satisfied + [matcher], bindings.merge(matcher.bind(value))
+          match rest, consumed + [value], unsatisfied, satisfied + [matcher], bindings.merge(matcher.bind(value))
         end
       end
 
