@@ -1,4 +1,5 @@
 require "mvcli"
+require "mvcli/middleware/exit_status"
 require_relative "middleware"
 require_relative "command"
 require_relative "actions"
@@ -13,6 +14,7 @@ module MVCLI
       ActiveSupport::Dependencies.autoload_paths << root.join('app/providers')
       ActiveSupport::Dependencies.autoload_paths << root.join('app/controllers')
       @middleware = Middleware.new
+      @middleware << Middleware::ExitStatus.new
       @middleware << Provisioning::Middleware.new
       @middleware << @router
     end
