@@ -1,15 +1,11 @@
+require "active_support/inflector/methods"
+
 module MVCLI
   class Loader
-    def initialize(path)
-      @path = path
-    end
+    include ActiveSupport::Inflector
 
-    def load(type, name)
-      pathname = "#{name}_#{type}"
-      filename = File.join(@path, "app/#{type}s", pathname)
-      require filename
-      classname = pathname.capitalize.gsub(/_(\w)/) {|m| m[1].upcase}
-      Object.const_get(classname).new
+    def load(type, name, *args, &block)
+      constantize(camelize("#{name}_#{type}")).new(*args, &block)
     end
   end
 end
