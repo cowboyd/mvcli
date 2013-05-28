@@ -4,8 +4,8 @@ require_relative "renderer"
 
 module MVCLI
   class Actions
-    def initialize(root, loader = nil, renderer = nil)
-      @loader = loader || Loader.new(root)
+    def initialize(root, loader = Loader.new, renderer = nil)
+      @loader = loader
       @renderer = renderer || Renderer.new(root)
     end
 

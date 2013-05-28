@@ -1,5 +1,4 @@
-require "mvcli/version"
-
 module MVCLI
+  require "mvcli/version"
   require "mvcli/controller"
 end
