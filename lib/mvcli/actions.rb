@@ -1,3 +1,4 @@
+require "map"
 require_relative "loader"
 require_relative "renderer"
 
@@ -21,8 +22,8 @@ module MVCLI
         @method = method
       end
 
-      def call(command)
-        controller = @loader.load :controller, @controller
+      def call(command, bindings = Map.new)
+        controller = @loader.load :controller, @controller, bindings
         context = controller.send @method
         path = [@controller, @method].join('/')
         @renderer.render command.output, path, context

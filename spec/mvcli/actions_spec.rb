@@ -20,9 +20,9 @@ describe "MVCLI::Actions" do
   context "when the class exists" do
     Given(:output) {mock(:Output)}
     Given(:controller) {mock(:Controller)}
-    Given {loader.stub(:load).with(:controller, 'foo') {controller}}
+    Given {loader.stub(:load).with(:controller, 'foo', {}) {controller}}
     Given {controller.stub(:bar) {"the context"}}
-    When {actions['foo#bar'].call(mock(:Command, :output => output))}
+    When {actions['foo#bar'].call(mock(:Command, :output => output), {})}
     Then {controller.should have_received(:bar)}
     And {renderer.should have_received(:render).with(output, 'foo/bar', 'the context')}
   end

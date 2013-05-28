@@ -5,8 +5,12 @@ describe "MVCLI::Router" do
   Given(:Router) {MVCLI::Router}
   Given(:actions) {mock(:Actions)}
   Given(:router) {self.Router.new actions}
-  Given {actions.stub(:[]) {|action| @action = action; ->(command) {@command = command}}}
-
+  Given do
+    actions.stub(:[]) do |action|
+      @action = action
+      ->(command, bindings) {@command = command; @bindings = bindings}
+    end
+  end
 
   context "without any routes" do
     When(:result) {invoke}
@@ -32,6 +36,7 @@ describe "MVCLI::Router" do
     When {invoke 'show loadbalancer 6'}
     Then {@action.should eql 'loadbalancers#show'}
     And {@command.argv == ['show' 'loadbalancer' '6']}
+    And {@bindings[:id].should eql '6'}
   end
 
   def invoke(route = '')

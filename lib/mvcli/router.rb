@@ -18,8 +18,10 @@ module MVCLI
     end
 
     def call(command)
-      if route = @routes.find {|r| r.matches? command}
-        return route.call command
+      @routes.each do |route|
+        if match = route.match(command)
+          return match.call command
+        end
       end
       fail RoutingError, "no route matches '#{command.argv.join ' '}'"
     end
@@ -30,14 +32,19 @@ module MVCLI
         @actions, @action, @options = actions, action, options
       end
 
-      def matches?(command)
-        @pattern.match(command.argv).matches?
+      def match(command)
+        match = @pattern.match(command.argv)
+        if match.matches?
+          proc do |command|
+            action = @actions[@action] or fail "no action found for #{@action}"
+            action.call command, match.bindings
+          end
+        end
       end
+    end
 
-      def call(command)
-        action = @actions[@action] or fail "no action found for #{@action}"
-        action.call command
-      end
+    class Match
+
     end
   end
 end
