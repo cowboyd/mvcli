@@ -18,12 +18,13 @@ module MVCLI
     end
 
     class Scope
-      def initialize(provisioner)
+      def initialize(command, provisioner)
+        @command = command
         @provisioner = provisioner
       end
 
       def [](name)
-        @provisioner[name]
+        name.to_s == "command" ? @command : @provisioner[name]
       end
 
       def evaluate
@@ -63,7 +64,7 @@ module MVCLI
 
     class Middleware
       def call(command)
-        Scope.new(Provisioner.new).evaluate do
+        Scope.new(command, Provisioner.new).evaluate do
           yield command
         end
       end

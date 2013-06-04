@@ -8,7 +8,13 @@ describe "Provisioning" do
     Given(:mod) {Module.new {include MVCLI::Provisioning}}
     Given(:cls) {m = mod; Class.new {include m}}
     Given(:obj) {cls.new}
-    Given(:scope) {MVCLI::Provisioning::Scope.new provisioner}
+    Given(:command) {mock(:Command)}
+    Given(:scope) {MVCLI::Provisioning::Scope.new command, provisioner}
+    context "when the command is required" do
+      Given {mod.requires :command}
+      When(:result) {scope.evaluate {obj.command}}
+      Then {result == command}
+    end
     context "with a requirement is specified on the module" do
       Given {mod.requires :foo}
       context "when accessing it but it is not present" do
