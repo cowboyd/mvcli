@@ -15,8 +15,6 @@ module MVCLI
       ActiveSupport::Dependencies.autoload_paths << root.join('app/providers')
       ActiveSupport::Dependencies.autoload_paths << root.join('app/controllers')
       @middleware = Middleware.new
-      @middleware << Middleware::ExitStatus.new
-      @middleware << Middleware::ExceptionLogger.new
       @middleware << Provisioning::Middleware.new
       @middleware << @router
     end
