@@ -1,4 +1,6 @@
 ## Mvcli
+[![Gem Version](https://badge.fury.io/rb/mvcli.png)](http://badge.fury.io/rb/mvcli)
+[![Build Status](https://travis-ci.org/cowboyd/mvcli.png?branch=master)](https://travis-ci.org/cowboyd/mvcli)
+[![Dependency Status](https://gemnasium.com/cowboyd/mvcli.png)](https://gemnasium.com/cowboyd/mvcli)
 
-It's terribly frustrating when repos don't have a good README. But a
-bad readme is worse than no README at all.
+This is still an experiment, but I am beginning to suspect it will be nice.
