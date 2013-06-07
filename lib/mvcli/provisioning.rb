@@ -55,9 +55,12 @@ module MVCLI
     class Provisioner
       def initialize
         @loader = Loader.new
+        @providers = Map.new
       end
       def [](name)
-        provider = @loader.load :provider, name
+        unless provider = @providers[name]
+          provider = @providers[name] = @loader.load :provider, name
+        end
         provider.value
       end
     end
