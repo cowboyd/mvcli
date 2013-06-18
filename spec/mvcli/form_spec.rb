@@ -1,6 +1,10 @@
 require "spec_helper"
+require "mvcli/form"
+require "mvcli/decoding"
+require "ipaddr"
 
 describe "A form for creating a load balancer" do
+  use_natural_assertions
   Given(:naming) {mock(:NameGenerator, generate: 'random-name')}
   Given(:definition) do
     Class.new(MVCLI::Form) do
@@ -12,12 +16,11 @@ describe "A form for creating a load balancer" do
 
       input :virtual_ips, [String], default: ['PUBLIC'], &:upcase
 
-      input :nodes, [Node], format: "ADDRESS:PORT[:CONDITION][:TYPE]" do |attrs|
+      input :nodes, ["ADDRESS:PORT[:CONDITION][:TYPE]"] do |attrs|
         Node.new attrs.
           address {|a| IPAddr.new a}.
-          condition(&:upcase).
-          type(&:upcase)
-        Node.new attrs
+          port {|p| p.to_i}.
+          condition(&:upcase).type(&:upcase)
       end
     end
   end
@@ -31,7 +34,11 @@ describe "A form for creating a load balancer" do
          nodes: ['10.0.0.1:80:enabled:primary', '10.0.0.2:80:disabled:secondary']
        })
     }
-    When(:form) {definition.new params}
+    When(:form) do
+      definition.new(params).tap do |f|
+        f.stub(:decoders) {MVCLI::Decoding}
+      end
+    end
     Then {form.name == 'foo'}
     And {form.port == 80}
     And {form.protocol == 'HTTP'}
@@ -54,9 +61,9 @@ describe "A form for creating a load balancer" do
 end
 
 class Node
-  attr_accessor :address, :port, :protocol
+  attr_accessor :address, :port, :protocol, :condition, :type
 
   def initialize(attrs)
-    @address, @port, @protocal = *attrs.values_at(:address, :port, :protocol)
+    @address, @port, @protocal, @condition, @type = *attrs.values_at(:address, :port, :protocol, :condition, :type)
   end
 end
