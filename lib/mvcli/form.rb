@@ -10,8 +10,11 @@ module MVCLI
 
     class << self
       def input(name, type, options = {}, &block)
+        default_value = options[:default]
+        default = default_value.respond_to?(:call) ? default_value : proc {default_value}
         define_method(name) do
-          decoders[type].call @source[name], &block
+          value = @source[name] || instance_exec(&default)
+          decoders[type].call(value, &block)
         end
       end
     end

@@ -5,12 +5,13 @@ require "ipaddr"
 
 describe "A form for creating a load balancer" do
   use_natural_assertions
-  Given(:naming) {mock(:NameGenerator, generate: 'random-name')}
   Given(:definition) do
     Class.new(MVCLI::Form) do
+      requires :naming
+
       input :name, String, default: -> {naming.generate 'l', 'b'}
 
-      input :port, Integer
+      input :port, Integer, default: 80
 
       input :protocol, String, default: 'HTTP', &:upcase
 
@@ -20,8 +21,28 @@ describe "A form for creating a load balancer" do
         Node.new attrs.
           address {|a| IPAddr.new a}.
           port {|p| p.to_i}.
+          condition(&:to_s).type(&:to_s).
           condition(&:upcase).type(&:upcase)
       end
+    end
+  end
+  Given(:form) do
+    definition.new(params).tap do |f|
+      f.stub(:decoders) {MVCLI::Decoding}
+      f.stub(:naming) {mock(:NameGenerator, generate: 'random-name')}
+
+    end
+  end
+  context "with partially specified, valid inputs" do
+    Given(:params) {({nodes: ['10.0.0.1:80']})}
+    Then {form.name == 'random-name'}
+    And {form.port == 80}
+    And {form.protocol == 'HTTP'}
+    And {form.virtual_ips == ['PUBLIC']}
+    context "the default form node" do
+      Given(:node) {form.nodes.first}
+      Then {node.address == IPAddr.new('10.0.0.1')}
+      And {node.port = 80}
     end
   end
   context "with fully specified, valid inputs" do
@@ -34,11 +55,7 @@ describe "A form for creating a load balancer" do
          nodes: ['10.0.0.1:80:enabled:primary', '10.0.0.2:80:disabled:secondary']
        })
     }
-    When(:form) do
-      definition.new(params).tap do |f|
-        f.stub(:decoders) {MVCLI::Decoding}
-      end
-    end
+
     Then {form.name == 'foo'}
     And {form.port == 80}
     And {form.protocol == 'HTTP'}
