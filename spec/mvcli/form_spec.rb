@@ -7,31 +7,68 @@ describe "A form for creating a load balancer" do
   use_natural_assertions
   Given(:definition) do
     Class.new(MVCLI::Form) do
-      requires :naming
-
       input :name, String, default: -> {naming.generate 'l', 'b'}
 
       input :port, Integer, default: 80
 
-      input :protocol, String, default: 'HTTP', &:upcase
+      input :protocol, String, default: 'HTTP'
 
-      input :virtual_ips, [String], default: ['PUBLIC'], &:upcase
+      input :virtual_ips, [String], default: ['PUBLIC']
 
-      input :nodes, ["ADDRESS:PORT[:CONDITION][:TYPE]"] do |attrs|
-        Node.new attrs.
-          address {|a| IPAddr.new a}.
-          port {|p| p.to_i}.
-          condition(&:to_s).type(&:to_s).
-          condition(&:upcase).type(&:upcase)
+      input :nodes, [Node], required: true do
+        input :address, IPAddr, required: true
+        input :port, Integer, required: true
+        input :type, String, default: 'PRIMARY'
+        input :condition, String, default: 'ENABLED'
+
+        decode do |attrs|
+          attrs.address {|s| IPAddr.new s}
+          attrs.port {|s| Integer s}
+          attrs.type(&:to_s).type(&:upcase)
+          attrs.condition(&:to_s).condition(&:upcase)
+        end
+
+        validates(:port, "port must be between 0 and 65,535") {|port| port >= 0 && port <= 65535}
+        validates(:type, "invalid type") {|type| ['PRIMARY', 'SECONDARY'].member? type}
+        validates(:condition, "invalid condition") {|c| ['ENABLED', 'DISABLED'].member? c}
       end
+
+      # Validation =>
+      #   violations
+      #     :name => []
+      #     :protocol => []
+      #     :nodes => []
+      #   included
+      #    nodes:
+      #      0: validation
+      #           :violations
+      #             :port => []
     end
   end
   Given(:form) do
     definition.new(params).tap do |f|
       f.stub(:decoders) {MVCLI::Decoding}
       f.stub(:naming) {mock(:NameGenerator, generate: 'random-name')}
-
     end
+  end
+  context "with no nodes provided" do
+    Given(:params) {({nodes: []})}
+    Then {!form.valid?}
+    And {form.violations[:nodes] == ["cannot be empty"]}
+
+  end
+  context "with invalid node inputs" do
+    Given(:params) do
+      ({
+         nodes: [{address: '10.0.0.1', port: '-500'}, {address: 'invalid-address'}]
+       })
+    end
+    Given do
+      puts form.validation[:nodes].inspect
+    end
+    Then {!form.valid?}
+    And {form.validation[:nodes].first.violations[:port] == ["port must be between 0 and 65,535"]}
+    And {form.validation[:nodes].last.errors[:address] == ["'invalid-address' is not a valid address"]}
   end
   context "with partially specified, valid inputs" do
     Given(:params) {({nodes: ['10.0.0.1:80']})}
@@ -56,7 +93,8 @@ describe "A form for creating a load balancer" do
        })
     }
 
-    Then {form.name == 'foo'}
+    Then {form.valid?}
+    And {form.name == 'foo'}
     And {form.port == 80}
     And {form.protocol == 'HTTP'}
     And {form.nodes.length == 2}
@@ -78,9 +116,12 @@ describe "A form for creating a load balancer" do
 end
 
 class Node
+  include MVCLI::Validatable
   attr_accessor :address, :port, :protocol, :condition, :type
+  validates(:port, "port must be between 0 and 65,535") {|port| port >= 0 && port <= 65535}
 
   def initialize(attrs)
     @address, @port, @protocal, @condition, @type = *attrs.values_at(:address, :port, :protocol, :condition, :type)
   end
+
 end
