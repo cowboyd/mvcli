@@ -123,15 +123,20 @@ module MVCLI::Validatable
       @field, @message, @options, @predicate = field, message, options, predicate
     end
     def call(validatable, violations, errors)
-      value = validatable.send(@field)
+      value, error = read validatable
       if value.nil?
         return unless !!@options[:nil]
       end
       unless @predicate.call value
         violations[@field] << @message
       end
-    rescue Exception => e
-      errors[@field] << e
+      errors[@field] << error if error
+    end
+
+    def read(validatable)
+      return validatable.send(@field), nil
+    rescue StandardError => e
+      return nil, e
     end
   end
 end
