@@ -24,8 +24,8 @@ describe "A form for creating a load balancer" do
         decode do |attrs|
           attrs.address {|s| IPAddr.new s}
           attrs.port {|s| Integer s}
-          attrs.type(&:to_s).type(&:upcase)
-          attrs.condition(&:to_s).condition(&:upcase)
+          attrs.type(&:upcase)
+          attrs.condition(&:upcase)
         end
 
         validates(:port, "port must be between 0 and 65,535") {|port| port >= 0 && port <= 65535}
@@ -33,16 +33,10 @@ describe "A form for creating a load balancer" do
         validates(:condition, "invalid condition") {|c| ['ENABLED', 'DISABLED'].member? c}
       end
 
-      # Validation =>
-      #   violations
-      #     :name => []
-      #     :protocol => []
-      #     :nodes => []
-      #   included
-      #    nodes:
-      #      0: validation
-      #           :violations
-      #             :port => []
+      decode do |attrs|
+        attrs.port {|s| Integer s}
+        attrs.protocol(&:upcase)
+      end
     end
   end
   Given(:form) do
@@ -63,15 +57,20 @@ describe "A form for creating a load balancer" do
          nodes: [{address: '10.0.0.1', port: '-500'}, {address: 'invalid-address'}]
        })
     end
-    Given do
-      puts form.validation[:nodes].inspect
-    end
     Then {!form.valid?}
-    And {form.validation[:nodes].first.violations[:port] == ["port must be between 0 and 65,535"]}
-    And {form.validation[:nodes].last.errors[:address] == ["'invalid-address' is not a valid address"]}
+    context "the first violation" do
+      Given(:violations) {form.validation[:nodes].first.violations}
+      Then {violations[:port] == ["port must be between 0 and 65,535"]}
+    end
+    context "the second error" do
+      Given(:errors) {form.validation[:nodes].last.errors}
+      Then {errors[:address].first.is_a?(IPAddr::InvalidAddressError)}
+    end
   end
   context "with partially specified, valid inputs" do
-    Given(:params) {({nodes: ['10.0.0.1:80']})}
+    Given(:params) do
+      ({nodes: [{address: '10.0.0.1', port: 80}]})
+    end
     Then {form.name == 'random-name'}
     And {form.port == 80}
     And {form.protocol == 'HTTP'}
@@ -79,7 +78,7 @@ describe "A form for creating a load balancer" do
     context "the default form node" do
       Given(:node) {form.nodes.first}
       Then {node.address == IPAddr.new('10.0.0.1')}
-      And {node.port = 80}
+      And {node.port == 80}
     end
   end
   context "with fully specified, valid inputs" do
@@ -89,7 +88,19 @@ describe "A form for creating a load balancer" do
          port: '80',
          protocol: 'http',
          virtual_ips: ['public', 'servicenet'],
-         nodes: ['10.0.0.1:80:enabled:primary', '10.0.0.2:80:disabled:secondary']
+         nodes:
+         [ {
+             address: '10.0.0.1',
+             port: '80',
+             condition: 'enabled',
+             type: 'primary'
+           },
+           {
+             address: '10.0.0.2',
+             port: '80',
+             condition: 'disabled',
+             type: 'secondary'
+           }]
        })
     }
 

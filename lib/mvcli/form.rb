@@ -46,16 +46,11 @@ module MVCLI
           end
         end
 
-        default = ->(value) do
-          return value if value
-          options[:default].respond_to?(:call) ? options[:default].call : options[:default]
-        end
-
         if block_given?
           subform = Class.new(MVCLI::Form, &block)
           validates_child name
           @decoding.send(name) do |value|
-            if type.is_a?(Array)
+            if value.is_a?(Array)
               [value].flatten.map do |element|
                 subform.new(element, type.first)
               end
@@ -63,12 +58,15 @@ module MVCLI
               subform.new(value, type.first)
             end
           end
-        else
-          @decoding.send(name, &default)
         end
 
         define_method(name) do
-          self.class.decoding.call name, @source[name], type
+          if raw = @source.is_a?(String) ? @source : @source[name]
+            self.class.decoding.call name, raw, type
+          else
+            default = options[:default]
+            default.respond_to?(:call) ? instance_exec(&default) : default
+          end
         end
       end
     end
