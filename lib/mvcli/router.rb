@@ -42,9 +42,5 @@ module MVCLI
         end
       end
     end
-
-    class Match
-
-    end
   end
 end
