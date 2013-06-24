@@ -1,5 +1,6 @@
 require "map"
 require "mvcli/router/pattern"
+require "mvcli/argv"
 
 module MVCLI
   class Router
@@ -33,7 +34,8 @@ module MVCLI
       end
 
       def match(command)
-        match = @pattern.match(command.argv)
+        argv = MVCLI::Argv.new command.argv
+        match = @pattern.match(argv.arguments)
         if match.matches?
           proc do |command|
             action = @actions[@action] or fail "no action found for #{@action}"

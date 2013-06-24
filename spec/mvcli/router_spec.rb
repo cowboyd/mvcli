@@ -25,6 +25,12 @@ describe "MVCLI::Router" do
     Then {@command.argv.should eql ['login']}
   end
 
+  context "when there are command line options, it does not interfere" do
+    Given {router.match 'login' => 'logins#create'}
+    When {invoke 'login --then --go-away -f 6 -p'}
+    Then {@command.should_not be_nil}
+  end
+
   context "with a route matched to a block" do
     Given {router.match bam: ->(command) {@command = command}}
     When {invoke 'bam'}
