@@ -1,5 +1,5 @@
 require "map"
-require_relative "router/pattern"
+require "mvcli/router/pattern"
 
 module MVCLI
   class Router
