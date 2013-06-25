@@ -1,4 +1,5 @@
 require "mvcli/form"
+require "active_support/inflector/methods"
 
 class MVCLI::Form::Input
   def initialize(name, target, options = {}, &block)
@@ -57,8 +58,11 @@ class MVCLI::Form::Input
   end
 
   class ListTarget < Target
+    include ActiveSupport::Inflector
+
     def value(source, context = nil)
-      list = [source[@name]].compact.flatten.map do |value|
+      source = Map(source)
+      list = [source[singularize @name]].compact.flatten.map do |value|
         super({@name => value}, context)
       end.compact
       list.empty? ? [default(context)].compact.flatten : list

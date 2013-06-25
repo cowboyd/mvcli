@@ -84,4 +84,12 @@ describe "Form Inputs" do
       Then {value == 10}
     end
   end
+
+  describe "a plural list input" do
+    Given(:input) {MVCLI::Form::Input.new :fields, [Integer]}
+    context "passing a singular value" do
+      When(:value) { input.value field: 10 }
+      Then {value == [10]}
+    end
+  end
 end

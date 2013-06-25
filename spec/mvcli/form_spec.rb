@@ -34,7 +34,7 @@ describe "A form for creating a load balancer" do
     end
   end
   context "with no nodes provided" do
-    Given(:params) {({nodes: []})}
+    Given(:params) {({node: []})}
     Then {!form.valid?}
     And {form.violations[:nodes] == ["cannot be empty"]}
 
@@ -42,7 +42,7 @@ describe "A form for creating a load balancer" do
   context "with invalid node inputs" do
     Given(:params) do
       ({
-         nodes: ['10.0.0.1:-500', 'xxx:80']
+         node: ['10.0.0.1:-500', 'xxx:80']
        })
     end
     Then {!form.valid?}
@@ -57,7 +57,7 @@ describe "A form for creating a load balancer" do
   end
   context "with partially specified, valid inputs" do
     Given(:params) do
-      ({nodes: ['10.0.0.1:80']})
+      ({node: ['10.0.0.1:80']})
     end
     Then {form.name == 'random-name'}
     And {form.port == 80}
@@ -75,8 +75,8 @@ describe "A form for creating a load balancer" do
          name: 'foo',
          port: '80',
          protocol: 'http',
-         virtual_ips: ['public', 'servicenet'],
-         nodes: [
+         virtual_ip: ['public', 'servicenet'],
+         node: [
                  '10.0.0.1:80:primary:enabled',
                  '10.0.0.2:80:secondary:disabled'
                 ]
