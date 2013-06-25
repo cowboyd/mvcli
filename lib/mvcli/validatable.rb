@@ -10,12 +10,16 @@ module MVCLI::Validatable
     validation.valid?
   end
 
+  def validate!
+    validation.validate!
+  end
+
   def violations
     validation.violations
   end
 
   def validation
-    validators.reduce(Validation.new) do |validation, validator|
+    validators.reduce(Validation.new(self)) do |validation, validator|
       validation.tap do
         validator.validate self, validation
       end
@@ -24,6 +28,23 @@ module MVCLI::Validatable
 
   def validators
     self.class.validators
+  end
+
+  class ValidationError < StandardError
+    attr_reader :validation
+
+    def initialize(validation)
+      super "#{validation.object} is invalid"
+      @validation = validation
+    end
+
+    def violations
+      validation.violations
+    end
+
+    def each(&block)
+      validation.each(&block)
+    end
   end
 
   class Validator
@@ -40,23 +61,32 @@ module MVCLI::Validatable
       @children << name
     end
 
-    def validate(validatable, validation)
+    def validate(object, validation = Validation.new(object))
       @rules.reduce(validation) do |v, rule|
         v.tap do
-          rule.call validatable, v.violations, v.errors
+          rule.call object, v.violations, v.errors
         end
       end
       @children.each do |name|
-        validation.append name,  [validatable.send(name)].flatten.map(&:validation)
+        validate_child object, name, validation
       end
+      return validation
+    end
+
+    def validate_child(object, name, validation)
+      child = object.send(name) || []
+      validation.append name, [child].flatten.map(&:validation)
+    rescue StandardError => e
+      validation.errors[name] << e
     end
   end
 
 
   class Validation
-    attr_reader :violations, :errors
+    attr_reader :object, :violations, :errors
 
-    def initialize
+    def initialize(object)
+      @object = object
       @children = Map.new do |h,k|
         h[k] = []
       end
@@ -70,6 +100,10 @@ module MVCLI::Validatable
 
     def valid?
       violations.empty? && errors.empty? && children_valid?
+    end
+
+    def validate!
+      fail ValidationError, self unless valid?
     end
 
     def children_valid?
