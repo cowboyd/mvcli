@@ -12,8 +12,9 @@ module MVCLI
     def initialize
       @router = Router.new Actions.new root
       @router.instance_eval route_file.read, route_file.to_s, 1
-      ActiveSupport::Dependencies.autoload_paths << root.join('app/providers')
-      ActiveSupport::Dependencies.autoload_paths << root.join('app/controllers')
+      [:providers, :controllers, :forms, :models].each do |path|
+        ActiveSupport::Dependencies.autoload_paths << root.join('app', path.to_s)
+      end
       @middleware = Middleware.new
       @middleware << Provisioning::Middleware.new
       @middleware << @router
