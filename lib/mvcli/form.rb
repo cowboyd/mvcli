@@ -18,7 +18,7 @@ module MVCLI
       self.class.inputs.reduce(Map.new) do |map, pair|
         name, input = *pair
         map.tap do
-          map[name] = input.value @source
+          map[name] = input.value @source, self
         end
       end
     end
