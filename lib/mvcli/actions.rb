@@ -1,4 +1,6 @@
 require "map"
+require "mvcli/controller"
+require "mvcli/form"
 require_relative "loader"
 require_relative "renderer"
 
