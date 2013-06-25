@@ -1,12 +1,10 @@
 require "map"
-require "active_support/inflector"
 
 class MVCLI::Argv
   attr_reader :arguments, :options
 
-  def initialize(argv, switches = [], objects = Map.new)
+  def initialize(argv, switches = [])
     @switches = switches.map(&:to_s)
-    @objects = Map objects
     @arguments, @options = scan argv
   end
 
@@ -25,9 +23,6 @@ class MVCLI::Argv
         scan rest, arguments, merge(options, key, true)
       elsif rest.first =~ /^-/
         scan rest, arguments, merge(options, key)
-      elsif object? key
-        value, *rest = rest
-        scan rest, arguments, merge(options, key, scan_object(key, value))
       else
         value, *rest = rest
         scan rest, arguments, merge(options, key, value)
@@ -39,15 +34,6 @@ class MVCLI::Argv
 
   def switch?(key)
     @switches.member? underscore key
-  end
-
-  def object?(key)
-    @objects.member? underscore key
-  end
-
-  def scan_object(name, value)
-    keys = @objects[name]
-    Map Hash[keys.zip value.split ':']
   end
 
   def merge(options, key, value = nil)

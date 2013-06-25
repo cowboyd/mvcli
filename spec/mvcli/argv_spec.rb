@@ -4,8 +4,8 @@ require "shellwords"
 
 describe "ARGV" do
   use_natural_assertions
-  Given(:input) {Shellwords.shellsplit "before --one 1 --two=two stuff in the middle --three -f --four --no-five -p 6 --mo money --mo problems --hash one:two:three --two-word val --two-word-p after"}
-  Given(:argv) {MVCLI::Argv.new input, [:three, :f, :five, :two_word_p], {hash: [1,2,3]}}
+  Given(:input) {Shellwords.shellsplit "before --one 1 --two=two stuff in the middle --three -f --four --no-five -p 6 --mo money --mo problems --two-word val --two-word-p after"}
+  Given(:argv) {MVCLI::Argv.new input, [:three, :f, :five, :two_word_p]}
 
   context " options" do
     Given(:options) {argv.options}
@@ -17,7 +17,6 @@ describe "ARGV" do
     Then {options[:five] == [false]}
     Then {options[:p] == ['6']}
     Then {options[:mo] == ['money', 'problems']}
-    Then {options[:hash] == [{1 => 'one', 2 => 'two', 3 => 'three'}]}
     Then {options[:two_word] == ['val']}
     Then {options[:two_word_p] == [true]}
   end
