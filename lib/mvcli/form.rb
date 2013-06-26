@@ -71,7 +71,7 @@ module MVCLI
         @inputs[name] = input
         if options[:required]
           if target.is_a?(Array)
-            validates(name, "cannot be empty", nil: true) {|value| value && value.length > 1}
+            validates(name, "cannot be empty", nil: true) {|value| value && !value.empty?}
           else
             validates(name, "is required", nil: true) {|value| !value.nil?}
           end
