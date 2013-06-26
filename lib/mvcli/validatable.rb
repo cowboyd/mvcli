@@ -34,7 +34,7 @@ module MVCLI::Validatable
     attr_reader :validation
 
     def initialize(validation)
-      super "#{validation.object} is invalid"
+      super validation.to_s
       @validation = validation
     end
 
@@ -124,6 +124,18 @@ module MVCLI::Validatable
     def append(name, validations)
       @children[name] += validations
     end
+
+    def to_s
+      elements = []
+      elements << "violations: #{@violations.inspect}" unless @violations.empty?
+      elements << "errors: #{@errors.inspect}" unless @errors.empty?
+      elements << "nested: #{children_to_s}" unless @children.empty?
+      [@object, elements.join(', ')].join ' '
+    end
+
+    def children_to_s
+      Hash[@children.keys.zip @children.values.map {|validations| validations.map(&:to_s)}].inspect
+    end
   end
 
   module ValidationDSL
@@ -158,13 +170,13 @@ module MVCLI::Validatable
     end
     def call(validatable, violations, errors)
       value, error = read validatable
-      if value.nil?
+      if error
+        errors[@field] << error
+      elsif value.nil?
         return unless !!@options[:nil]
+      else
+        violations[@field] << @message unless @predicate.call value
       end
-      unless @predicate.call value
-        violations[@field] << @message
-      end
-      errors[@field] << error if error
     end
 
     def read(validatable)
