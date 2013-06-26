@@ -39,7 +39,7 @@ module MVCLI
 
     class << self
       attr_accessor :target
-      attr_reader :inputs
+      attr_reader :inputs, :output
 
       def inherited(base)
         base.class_eval do
@@ -51,16 +51,24 @@ module MVCLI
         Decoder.new self, inputs.keys
       end
 
+      def output(&block)
+        if block_given?
+          @output = block
+        else
+          @output
+        end
+      end
+
       def input(name, target, options = {}, &block)
-        input = @inputs[name] = if block_given?
+        if block_given?
           form = Class.new(MVCLI::Form, &block)
           form.target = [target].flatten.first
           validates_child name
-          Input.new(name, target, options, &form.decoder)
+          input = Input.new(name, target, options, &form.decoder)
         else
-          Input.new(name, target, options, &options[:decode])
+          input = Input.new(name, target, options, &options[:decode])
         end
-
+        @inputs[name] = input
         if options[:required]
           if target.is_a?(Array)
             validates(name, "cannot be empty", nil: true) {|value| value && value.length > 1}
