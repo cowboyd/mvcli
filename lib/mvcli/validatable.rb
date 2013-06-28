@@ -172,9 +172,8 @@ module MVCLI::Validatable
       value, error = read validatable
       if error
         errors[@field] << error
-      elsif value.nil?
-        return unless !!@options[:nil]
       else
+        return if value.nil? && !@options[:nil]
         violations[@field] << @message unless @predicate.call value
       end
     end
