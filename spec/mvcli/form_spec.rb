@@ -52,7 +52,7 @@ describe "A form for creating a load balancer" do
     end
     context "the second error" do
       Given(:errors) {form.validation[:nodes].last.errors}
-      Then {errors[:address].first.is_a?(IPAddr::InvalidAddressError)}
+      Then { not errors[:address].empty? }
     end
   end
   context "with partially specified, valid inputs" do
