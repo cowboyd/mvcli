@@ -15,19 +15,25 @@ module MVCLI
       Template.new code, enc, filename
     end
 
+    class Context < BasicObject
+      attr_reader :this
+      def initialize(this)
+        @this = this
+      end
+    end
+
     class Template
       def initialize(code, enc, filename)
         @code, @enc, @filename = code, enc, filename
       end
 
-      def call(context, output)
+      def call(this, output)
+        context = Context.new this
         binding = context.instance_eval do
           @_erbout = output
           Kernel.binding
         end
         eval @code, binding, @filename, 1
-      ensure
-        context.remove_instance_variable(:@_erbout)
       end
 
       def to_proc
