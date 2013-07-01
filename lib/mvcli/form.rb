@@ -55,7 +55,7 @@ module MVCLI
         if block_given?
           @output = block
         else
-          @output
+          @output = ->(form) { form.attributes }
         end
       end
 

@@ -13,7 +13,7 @@ describe "A form for creating a load balancer" do
 
       input :protocol, String, default: 'HTTP', decode: :upcase
 
-      input :virtual_ips, [String], default: ['PUBLIC']
+      input :virtual_ips, [String], default: ['PUBLIC'], decode: :upcase
 
       input :nodes, [Node], required: true do
         input :address, IPAddr, required: true, decode: ->(s) {IPAddr.new s}
@@ -87,6 +87,10 @@ describe "A form for creating a load balancer" do
     And {form.port == 80}
     And {form.protocol == 'HTTP'}
     And {form.nodes.length == 2}
+
+    Given(:attributes) {form.value.to_hash.reject {|k,v| k == "nodes"}}
+    Then {attributes == {"name" => "foo", "port" => 80, "protocol" => "HTTP", "virtual_ips" => ["PUBLIC", "SERVICENET"]}}
+
     context ". On the first node" do
       Given(:node) {form.nodes.first}
       Then {node.address == IPAddr.new('10.0.0.1')}
