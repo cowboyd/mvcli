@@ -181,7 +181,7 @@ module MVCLI::Validatable
     end
 
     def check(object, violations)
-      if object.is_a?(Array) && @options[:each]
+      if object.is_a?(Enumerable) && @options[:each]
         object.each_with_index do |item, i|
           violations["#{@field}[#{i}]"] << @message unless @predicate.call item
         end
