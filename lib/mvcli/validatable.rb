@@ -50,6 +50,7 @@ module MVCLI::Validatable
   class Validator
     def initialize
       @rules = []
+      @all = []
       @children = []
     end
 
@@ -88,13 +89,13 @@ module MVCLI::Validatable
     def initialize(object)
       @object = object
       @children = Map.new do |h,k|
-        h[k] = []
+        h[k] = [] unless k.nil?
       end
       @violations = Map.new do |h,k|
-        h[k] = []
+        h[k] = [] unless k.nil?
       end
       @errors = Map.new do |h,k|
-        h[k] = []
+        h[k] = [] unless k.nil?
       end
     end
 
@@ -166,20 +167,32 @@ module MVCLI::Validatable
 
   class Rule
     def initialize(field, message, options, predicate)
-      @field, @message, @options, @predicate = field, message, options, predicate
+      @field, @message, @predicate = field, message, predicate
+      @options = options.reverse_merge each: true
     end
+
     def call(validatable, violations, errors)
       value, error = read validatable
       if error
         errors[@field] << error
       else
-        return if value.nil? && !@options[:nil]
-        violations[@field] << @message unless @predicate.call value
+        check value, violations
+      end
+    end
+
+    def check(object, violations)
+      if object.is_a?(Array) && @options[:each]
+        object.each_with_index do |item, i|
+          violations["#{@field}[#{i}]"] << @message unless @predicate.call item
+        end
+      else
+        return if object.nil? && !@options[:nil]
+        violations[@field] << @message unless @predicate.call object
       end
     end
 
     def read(validatable)
-      return validatable.send(@field), nil
+      return validatable.instance_eval(@field.to_s), nil
     rescue StandardError => e
       return nil, e
     end

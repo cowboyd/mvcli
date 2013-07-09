@@ -6,6 +6,8 @@ describe "a validator" do
   Given(:object) {Object.new}
   Given(:validator) {MVCLI::Validatable::Validator.new}
   Given(:validation) { validator.validate object }
+  Given(:violations) { validation.violations }
+
   context "when it validates a field that does not exist on the object" do
     Given {validator.validates(:does_not_exist, "invalid") {}}
     When(:validation) {validator.validate object}
@@ -35,6 +37,30 @@ describe "a validator" do
     context "when the validate on nil option is not passed" do
       When { validator.validates(:property, "check nil") {false}}
       Then { validation.valid? }
+    end
+  end
+
+  describe "validating each element in an enumerable" do
+    Given { validator.validates(:foodles, "invalid", nil: true) {|foodle| not foodle.nil? } }
+    context "when there are invalid elements in the enumerable" do
+      When { object.stub(:foodles) {["not nil", nil, "not nil"]} }
+      Then { not validation.valid? }
+      Then { violations.has_key? "foodles[1]" }
+      And { not violations.has_key? "foodles"}
+    end
+  end
+
+  describe "validating an enumerable itself" do
+    Given { object.stub(:array) {array} }
+    Given { validator.validates(:array, "invalid", each: false) {|a| a.length < 3} }
+    context "when it is valid" do
+      When(:array) { [1,2] }
+      Then { validation.valid? }
+    end
+    context "when it is invalid" do
+      When(:array) { [1,2,3] }
+      Then { not validation.valid? }
+      And {not violations["array"].empty?}
     end
   end
 end

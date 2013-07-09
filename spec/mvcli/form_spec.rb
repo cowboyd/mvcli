@@ -25,6 +25,7 @@ describe "A form for creating a load balancer" do
         validates(:type, "invalid type") {|type| ['PRIMARY', 'SECONDARY'].member? type}
         validates(:condition, "invalid condition") {|c| ['ENABLED', 'DISABLED'].member? c}
       end
+      validates(:virtual_ips, "invalid virtual IP") {|ip| ['PUBLIC', 'SERVICENET'].member? ip}
     end
   end
   Given(:form) do
@@ -32,6 +33,12 @@ describe "A form for creating a load balancer" do
       f.stub(:decoders) {MVCLI::Decoding}
       f.stub(:naming) {mock(:NameGenerator, generate: 'random-name')}
     end
+  end
+  context "with invalid array properties" do
+    Given(:params) { ({virtual_ip: ['PERBLIC'], node: ['10.0.0.1']}) }
+    Then { not form.valid? }
+    And {form.violations["virtual_ips[0]"] == ["invalid virtual IP"]}
+
   end
   context "with no nodes provided" do
     Given(:params) {({node: []})}
