@@ -98,6 +98,9 @@ describe "A form for creating a load balancer" do
     Given(:attributes) {form.value.to_hash.reject {|k,v| k == "nodes"}}
     Then {attributes == {"name" => "foo", "port" => 80, "protocol" => "HTTP", "virtual_ips" => ["PUBLIC", "SERVICENET"]}}
 
+    Given (:nodeattrs) { form.attributes[:nodes]}
+    Then { nodeattrs.first == {"address" => IPAddr.new('10.0.0.1'), "port" =>  80, "condition" => "ENABLED", "type" =>  "PRIMARY"} }
+
     context ". On the first node" do
       Given(:node) {form.nodes.first}
       Then {node.address == IPAddr.new('10.0.0.1')}

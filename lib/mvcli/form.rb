@@ -18,7 +18,9 @@ module MVCLI
       self.class.inputs.reduce(Map.new) do |map, pair|
         name, input = *pair
         map.tap do
-          map[name] = input.value @source, self
+          map[name] = input.value(@source, self) do |value|
+            value.is_a?(Form) ? value.attributes : value
+          end
         end
       end
     end
