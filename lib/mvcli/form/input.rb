@@ -9,11 +9,11 @@ class MVCLI::Form::Input
 
   def decode(&block)
     @handler.decode &block
-    return self
   end
 
-  def value(source, context = nil)
-    @handler.value source, context
+  def value(source, context = nil, &transform)
+    transform ||= ->(v) { v }
+    @handler.value source, context, &transform
   end
 
   def handler(target)
@@ -33,7 +33,12 @@ class MVCLI::Form::Input
       @decoders << block
     end
 
-    def value(source, context = nil)
+
+    def value(source, context = nil, &transform)
+      transform.call decoded source, context
+    end
+
+    def decoded(source, context)
       if value = [source[@name]].flatten.first
         @decoders.reduce(value) do |value, decoder|
           decoder.call value
@@ -60,12 +65,12 @@ class MVCLI::Form::Input
   class ListTarget < Target
     include ActiveSupport::Inflector
 
-    def value(source, context = nil)
+    def value(source, context = nil, &transform)
       source = Map(source)
       list = [source[singularize @name]].compact.flatten.map do |value|
-        super({@name => value}, context)
+        super({@name => value}, context, &transform)
       end.compact
-      list.empty? ? [default(context)].compact.flatten : list
+      list.empty? ? [transform.call(default(context))].compact.flatten : list
     end
   end
 

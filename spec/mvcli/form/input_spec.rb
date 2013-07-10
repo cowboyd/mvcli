@@ -91,5 +91,9 @@ describe "Form Inputs" do
       When(:value) { input.value field: 10 }
       Then {value == [10]}
     end
+    context "when the value is retrieved with a transform" do
+      When(:value) { input.value(field: 10) {|v| v * 2} }
+      Then { value == [20] }
+    end
   end
 end
