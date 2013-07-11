@@ -10,6 +10,11 @@ module MVCLI
     def initialize(actions = nil)
       @actions = actions || Map.new
       @routes = []
+      @macros = []
+    end
+
+    def macro(options)
+      @macros.push Macro.new options
     end
 
     def match(options)
@@ -19,12 +24,25 @@ module MVCLI
     end
 
     def call(command)
+      argv = @macros.reduce(command.argv) do |args, macro|
+        macro.expand args
+      end
       @routes.each do |route|
-        if match = route.match(command)
+        if match = route.match(argv)
           return match.call command
         end
       end
       fail RoutingError, "no route matches '#{command.argv.join ' '}'"
+    end
+
+    class Macro
+      def initialize(options)
+        @pattern, @expansion = options.first
+      end
+
+      def expand(argv)
+        argv.join(" ").gsub(@pattern, @expansion).split /\s+/
+      end
     end
 
     class Route
@@ -33,8 +51,8 @@ module MVCLI
         @actions, @action, @options = actions, action, options
       end
 
-      def match(command)
-        argv = MVCLI::Argv.new command.argv
+      def match(argv)
+        argv = MVCLI::Argv.new argv
         match = @pattern.match(argv.arguments)
         if match.matches?
           proc do |command|

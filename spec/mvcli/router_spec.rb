@@ -45,6 +45,13 @@ describe "MVCLI::Router" do
     And {@bindings[:id].should eql '6'}
   end
 
+  context "with macros" do
+    Given { router.macro /(-h|--help) (.*)/ => "help \\2" }
+    Given { router.match "help me" => "help#me"}
+    When { invoke "--help me" }
+    Then { @action.should eql 'help#me' }
+  end
+
   def invoke(route = '')
     router.call mock(:Command, :argv => route.split(/\s+/))
   end
