@@ -40,11 +40,11 @@ describe "MVCLI::Router" do
   end
 
   context "with a route with captures" do
-    Given {router.match 'show loadbalancer :id' => 'loadbalancers#show'}
-    When {invoke 'show loadbalancer 6'}
+    Given { router.match 'show loadbalancer :id' => 'loadbalancers#show' }
+    When { invoke 'show loadbalancer 6' }
     Then {@action == 'loadbalancers#show'}
-    And {@command.argv == ['show', 'loadbalancer', '6']}
-    And {@bindings[:id] == '6'}
+    And { @command.argv == ['show', 'loadbalancer', '6'] }
+    And { @bindings[:id] == '6' }
   end
 
   context "with macros" do
