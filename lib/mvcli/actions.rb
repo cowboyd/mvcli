@@ -12,6 +12,7 @@ module MVCLI
     end
 
     def [](key)
+      return key if key.respond_to?(:call)
       controller, method = key.split('#')
       Action.new @loader, @renderer, controller, method
     end

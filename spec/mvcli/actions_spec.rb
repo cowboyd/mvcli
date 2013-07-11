@@ -26,4 +26,9 @@ describe "MVCLI::Actions" do
     Then {controller.should have_received(:bar)}
     And {renderer.should have_received(:render).with(output, 'foo/bar', 'the context')}
   end
+
+  context "when the action is callable" do
+    Given(:app) { ->(c) {} }
+    Then { actions[app] == app }
+  end
 end
