@@ -2,6 +2,8 @@ require "spec_helper"
 require "mvcli/router"
 
 describe "MVCLI::Router" do
+  use_natural_assertions
+
   Given(:Router) {MVCLI::Router}
   Given(:actions) {mock(:Actions)}
   Given(:router) {self.Router.new actions}
@@ -20,36 +22,36 @@ describe "MVCLI::Router" do
   context "with a route matched to an action" do
     Given {router.match 'login' => 'logins#create'}
     When {invoke 'login'}
-    Then {@action.should eql 'logins#create'}
-    And {@command.should_not be_nil}
-    Then {@command.argv.should eql ['login']}
+    Then { @action == 'logins#create' }
+    And { not @command.nil? }
+    Then { @command.argv == ['login'] }
   end
 
   context "when there are command line options, it does not interfere" do
-    Given {router.match 'login' => 'logins#create'}
-    When {invoke 'login --then --go-away -f 6 -p'}
-    Then {@command.should_not be_nil}
+    Given { router.match 'login' => 'logins#create' }
+    When { invoke 'login --then --go-away -f 6 -p' }
+    Then { not @command.nil? }
   end
 
   context "with a route matched to a block" do
-    Given {router.match bam: ->(command) {@command = command}}
-    When {invoke 'bam'}
-    Then {@command.argv.should eql ['bam']}
+    Given { router.match bam: ->(command) {@command = command} }
+    When { invoke 'bam' }
+    Then { @command.argv == ['bam'] }
   end
 
   context "with a route with captures" do
     Given {router.match 'show loadbalancer :id' => 'loadbalancers#show'}
     When {invoke 'show loadbalancer 6'}
-    Then {@action.should eql 'loadbalancers#show'}
-    And {@command.argv == ['show' 'loadbalancer' '6']}
-    And {@bindings[:id].should eql '6'}
+    Then {@action == 'loadbalancers#show'}
+    And {@command.argv == ['show', 'loadbalancer', '6']}
+    And {@bindings[:id] == '6'}
   end
 
   context "with macros" do
     Given { router.macro /(-h|--help) (.*)/ => "help \\2" }
     Given { router.match "help me" => "help#me"}
     When { invoke "--help me" }
-    Then { @action.should eql 'help#me' }
+    Then { @action == 'help#me' }
   end
 
   def invoke(route = '')
