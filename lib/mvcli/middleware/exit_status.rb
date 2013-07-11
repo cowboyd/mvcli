@@ -1,3 +1,6 @@
+require "mvcli/router"
+require "mvcli/validatable"
+
 class MVCLI::Middleware
   class ExitStatus
     # <b>:ok,</b> <b>:success</b> - Successful termination
@@ -81,6 +84,8 @@ class MVCLI::Middleware
       result.is_a?(Integer) ? result : EX_OK
     rescue MVCLI::Validatable::ValidationError
       return EX_DATAERR
+    rescue MVCLI::Router::RoutingError => e
+      return EX_USAGE
     rescue Exception => e
       return EX_SOFTWARE
     end
