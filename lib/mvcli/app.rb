@@ -16,6 +16,8 @@ module MVCLI
         ActiveSupport::Dependencies.autoload_paths << root.join('app', path.to_s)
       end
       @middleware = Middleware.new
+      @middleware << MVCLI::Middleware::ExitStatus.new
+      @middleware << MVCLI::Middleware::ExceptionLogger.new
       @middleware << Provisioning::Middleware.new
       @middleware << @router
     end
