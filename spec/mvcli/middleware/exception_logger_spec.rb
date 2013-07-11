@@ -11,8 +11,9 @@ describe "MVCLI::Middleware::ExceptionLogger" do
     Then {result == 0}
   end
   context "with an app that raises an exception" do
-    When(:result) {logger.call(command) {fail "boom!"}}
-    Then {command.log == "boom!\n"}
-    And {result.should have_failed StandardError, "boom!"}
+    When(:result) { logger.call(command) { fail "boom!" } }
+    Then { result.should have_failed StandardError, "boom!" }
+    And { command.log =~ /boom!/ }
+
   end
 end
