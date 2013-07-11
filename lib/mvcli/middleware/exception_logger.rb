@@ -12,7 +12,7 @@ module MVCLI
         raise e
       rescue Exception => e
         command.log << "#{e.class}: #{e.message}\n"
-        command.log << "\n#{e.backtrace.join("\n")}\n"
+        command.log << "\n#{e.backtrace.join("\n")}\n" if ENV['backtrace']
         raise e
       end
     end
