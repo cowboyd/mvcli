@@ -9,8 +9,10 @@ require_relative "provisioning"
 
 module MVCLI
   class App
+    attr_reader :router
+    
     def initialize
-      @router = Router.new Actions.new root
+      @router = Router.new(self, Actions.new(root))
       @router.instance_eval route_file.read, route_file.to_s, 1
       [:providers, :controllers, :forms, :models].each do |path|
         ActiveSupport::Dependencies.autoload_paths << root.join('app', path.to_s)

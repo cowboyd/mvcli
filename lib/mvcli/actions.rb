@@ -25,8 +25,8 @@ module MVCLI
         @method = method
       end
 
-      def call(command, bindings = Map.new)
-        controller = @loader.load :controller, @controller, bindings
+      def call(command, bindings = Map.new, app = nil)
+        controller = @loader.load :controller, @controller, bindings, app
         context = controller.send @method
         path = [@controller, @method].join('/')
         @renderer.render command.output, path, context
