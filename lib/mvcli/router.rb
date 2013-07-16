@@ -7,7 +7,10 @@ module MVCLI
     RoutingError = Class.new StandardError
     InvalidRoute = Class.new RoutingError
 
-    def initialize(actions = nil)
+    attr_reader :routes
+
+    def initialize(app, actions = nil)
+      @app = app
       @actions = actions || Map.new
       @routes = []
       @macros = []
@@ -20,7 +23,7 @@ module MVCLI
     def match(options)
       pattern, action = options.first
       options.delete pattern
-      @routes << Route.new(pattern, @actions, action, options)
+      @routes << Route.new(@app, pattern, @actions, action, options)
     end
 
     def call(command)
@@ -46,7 +49,9 @@ module MVCLI
     end
 
     class Route
-      def initialize(pattern, actions, action, options = {})
+      attr_reader :actions, :action, :pattern
+      def initialize(app, pattern, actions, action, options = {})
+        @app = app
         @pattern = Pattern.new pattern.to_s
         @actions, @action, @options = actions, action, options
       end
@@ -57,7 +62,7 @@ module MVCLI
         if match.matches?
           proc do |command|
             action = @actions[@action] or fail "no action found for #{@action}"
-            action.call command, match.bindings
+            action.call command, match.bindings, @app
           end
         end
       end

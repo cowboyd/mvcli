@@ -17,6 +17,10 @@ module MVCLI
         end
       end
 
+      def to_s
+        @matchers.map{ |m| m.to_s }.join(" ")
+      end
+
       private
 
       def compile(pattern)
@@ -49,11 +53,19 @@ module MVCLI
           def bind(input)
             {@name => input}
           end
+
+          def to_s
+            ":#{@name}"
+          end
         end
 
         class Literal < Matcher
           def matches?(input)
             input == @name
+          end
+
+          def to_s
+            @name
           end
         end
       end
