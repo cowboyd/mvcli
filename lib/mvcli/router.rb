@@ -7,6 +7,8 @@ module MVCLI
     RoutingError = Class.new StandardError
     InvalidRoute = Class.new RoutingError
 
+    attr_reader :routes
+
     def initialize(app, actions = nil)
       @app = app
       @actions = actions || Map.new
@@ -47,6 +49,7 @@ module MVCLI
     end
 
     class Route
+      attr_reader :actions, :action, :pattern
       def initialize(app, pattern, actions, action, options = {})
         @app = app
         @pattern = Pattern.new pattern.to_s
