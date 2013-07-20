@@ -124,7 +124,7 @@ class Node
   validates(:port, "port must be between 0 and 65,535") {|port| port >= 0 && port <= 65535}
 
   def initialize(attrs)
-    @address, @port, @protocal, @condition, @type = *attrs.values_at(:address, :port, :protocol, :condition, :type)
+    @address, @port, @protocal, @condition, @type = attrs.values_at(:address, :port, :protocol, :condition, :type)
   end
 
 end
