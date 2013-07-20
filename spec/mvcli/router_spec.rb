@@ -14,6 +14,10 @@ describe "MVCLI::Router" do
     end
   end
 
+  def invoke(route = '')
+    router.call mock(:Command, :argv => route.split(/\s+/))
+  end
+
   context "without any routes" do
     When(:result) {invoke}
     Then {result.should have_failed self.Router::RoutingError}
@@ -52,9 +56,5 @@ describe "MVCLI::Router" do
     Given { router.match "help me" => "help#me"}
     When { invoke "--help me" }
     Then { @action == 'help#me' }
-  end
-
-  def invoke(route = '')
-    router.call mock(:Command, :argv => route.split(/\s+/))
   end
 end
