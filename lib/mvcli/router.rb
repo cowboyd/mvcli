@@ -4,8 +4,7 @@ require "mvcli/argv"
 
 module MVCLI
   class Router
-    RoutingError = Class.new StandardError
-    InvalidRoute = Class.new RoutingError
+    class RoutingError < StandardError; end
 
     def initialize(actions = nil)
       @actions = actions || Map.new
