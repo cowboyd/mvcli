@@ -35,7 +35,7 @@ module MVCLI
       end
 
       def to_proc
-        proc {|*_| call(*_)}
+        method(:call).to_proc
       end
     end
 

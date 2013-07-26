@@ -41,7 +41,11 @@ class MVCLI::Form::Input
     def decoded(source, context)
       if value = [source[@name]].flatten.first
         @decoders.reduce(value) do |value, decoder|
-          decoder.call value
+          if context.nil?
+            decoder.call value
+          else
+            context.instance_exec value, &decoder
+          end
         end
       else
         default context

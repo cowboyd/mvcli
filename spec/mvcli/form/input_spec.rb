@@ -72,7 +72,12 @@ describe "Form Inputs" do
       Then {value.nil?}
     end
   end
-
+  describe "with a decoding dependeant on context" do
+    Given(:context) { double(:count => 2) }
+    Given(:block) { ->(s) {s * count} }
+    When(:value) { input.value({field: '3'}, context) }
+    Then { value == '33' }
+  end
   describe "with a default" do
     Given(:options) {{default: 5}}
     context "when accesing nil" do
