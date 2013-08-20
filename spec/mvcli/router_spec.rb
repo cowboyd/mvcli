@@ -4,9 +4,9 @@ require "mvcli/router"
 describe "MVCLI::Router" do
   use_natural_assertions
 
-  Given(:Router) {MVCLI::Router}
-  Given(:actions) {mock(:Actions)}
-  Given(:router) {self.Router.new actions}
+  Given(:Router) { MVCLI::Router }
+  Given(:actions) { double(:Actions) }
+  Given(:router) { self.Router.new actions }
   Given do
     actions.stub(:[]) do |action|
       @action = action
@@ -15,17 +15,17 @@ describe "MVCLI::Router" do
   end
 
   def invoke(route = '')
-    router.call mock(:Command, :argv => route.split(/\s+/))
+    router.call double(:Command, :argv => route.split(/\s+/))
   end
 
   context "without any routes" do
-    When(:result) {invoke}
-    Then {result.should have_failed self.Router::RoutingError}
+    When(:result) { invoke }
+    Then { result.should have_failed self.Router::RoutingError }
   end
 
   context "with a route matched to an action" do
-    Given {router.match 'login' => 'logins#create'}
-    When {invoke 'login'}
+    Given { router.match 'login' => 'logins#create' }
+    When { invoke 'login' }
     Then { @action == 'logins#create' }
     And { not @command.nil? }
     Then { @command.argv == ['login'] }

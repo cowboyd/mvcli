@@ -31,7 +31,7 @@ describe "A form for creating a load balancer" do
   Given(:form) do
     definition.new(params).tap do |f|
       f.stub(:decoders) {MVCLI::Decoding}
-      f.stub(:naming) {mock(:NameGenerator, generate: 'random-name')}
+      f.stub(:naming) {double(:NameGenerator, generate: 'random-name')}
     end
   end
   context "with invalid array properties" do

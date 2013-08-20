@@ -4,7 +4,6 @@ source 'https://rubygems.org'
 gemspec
 
 gem "rake"
-gem "rspec", "~> 2.13.0"
+gem "rspec", "~> 2.14.0"
 gem "rspec-given"
-gem "rspec-spies"
 gem "pry"

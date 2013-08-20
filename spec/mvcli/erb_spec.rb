@@ -7,7 +7,7 @@ describe "MVCLI::ERB" do
     Given(:output) {""}
     Given(:template) {erb.compile "name: <%= this.name %>"}
     context "and call it with a context" do
-      When {template.call mock(:Context, :name => 'Charles'), output}
+      When {template.call double(:Context, :name => 'Charles'), output}
       Then {output.should eql "name: Charles"}
     end
   end
