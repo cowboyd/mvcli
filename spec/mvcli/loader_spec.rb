@@ -3,9 +3,10 @@ require "mvcli/loader"
 
 describe "MVCLI::Loader" do
   use_natural_assertions
-
+  Given(:extensions) { Hash.new }
   Given(:path) { double :Path }
-  Given(:loader) {MVCLI::Loader.new}
+  Given(:loader) { MVCLI::Loader.new extensions }
+  Given { path.stub(:exists?) { true } }
   Given { path.stub(:read) { content }}
 
   describe "querying if an extension exists" do
@@ -45,6 +46,23 @@ describe "MVCLI::Loader" do
           Object.send :remove_const, :OtherNamespace
         end
       end
+    end
+  end
+
+  describe "a custom extension type" do
+    Given(:handler) { double :TemplateHandler }
+    Given(:extensions) { ({:template => handler}) }
+    Given { handler.stub(:to_path) { |name| "templates/#{name}.txt.erb"} }
+
+    describe "querying" do
+      Then { loader.exists? path, :template, 'servers/show' }
+      And { path.should have_received(:exists?).with 'templates/servers/show.txt.erb' }
+    end
+    describe "loading" do
+      Given(:content) { "Hello Handler"}
+      Given { handler.stub(:define) { |name, bytes| [name, bytes].join ' -> ' } }
+      When(:ext) { loader.read path, :template, 'servers/show' }
+      Then { ext == "servers/show -> Hello Handler" }
     end
   end
 end
