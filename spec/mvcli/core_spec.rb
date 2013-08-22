@@ -25,7 +25,7 @@ describe "MVCLI Cores" do
       Given(:artifact) { Class.new }
       Given { loader.stub(:read) { artifact } }
       When(:result) { core.read :provider, 'naming' }
-      Then { loader.should have_received(:read).with(path, namespace, :provider, 'naming') }
+      Then { loader.should have_received(:read).with(path, :provider, 'naming', namespace) }
       And { result == artifact }
       And { result.core == core }
       And { result.new.core == core }

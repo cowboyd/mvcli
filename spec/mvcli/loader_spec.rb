@@ -21,7 +21,7 @@ describe "MVCLI::Loader" do
       context "when the extension is read and it matches the naming conventions" do
         Given { module ::ANamespace; end }
         Given(:content) { "class ANamespace::BarProvider; def barf; end; end" }
-        When(:provider_class) { loader.read path, ANamespace, :provider, 'bar' }
+        When(:provider_class) { loader.read path, :provider, 'bar', ANamespace }
         Then { path.should have_received(:read).with('providers/bar_provider.rb') }
         Then { not provider_class.nil? }
         Then { defined? ::ANamespace::BarProvider }
@@ -33,13 +33,13 @@ describe "MVCLI::Loader" do
       end
       context "when extension does not match naming conventions" do
         Given(:content) { "class ArgleBargle; end" }
-        When(:result) { loader.read path, Object, :provider, 'bar' }
+        When(:result) { loader.read path, :provider, 'bar' }
         Then { result.should have_failed LoadError }
       end
       context "when extension matches naming conventions but is not in the right namespace" do
         Given { module ::OtherNamespace; end }
         Given(:content) { "class Object::BarProvider; end" }
-        When(:result) { loader.read path, OtherNamespace, :provider, 'bar' }
+        When(:result) { loader.read path, :provider, 'bar', OtherNamespace }
         Then { result.should have_failed LoadError }
         after do
           Object.send :remove_const, :OtherNamespace

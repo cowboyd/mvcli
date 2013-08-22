@@ -25,7 +25,7 @@ module MVCLI
         fail ExtensionNotFound, "unable to locate #{extension_type} '#{name}'"
       end
       this = self
-      @loader.read(path, namespace, extension_type, name).tap do |ext|
+      @loader.read(path, extension_type, name, namespace).tap do |ext|
         [ext, ext.singleton_class].each do |cls|
           cls.send(:define_method, :core) { this } if cls.respond_to?(:define_method, true)
         end
