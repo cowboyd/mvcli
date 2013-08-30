@@ -5,7 +5,7 @@ module MVCLI
 
     def initialize(extensions = {})
       @extensions = Map extensions
-      @default_handler = DefaultHandler.new
+      @default_handler = RubyClassLoader.new
     end
 
     def load(type, name, *args, &block)
@@ -29,7 +29,7 @@ module MVCLI
       @extensions[extension_type] || @default_handler
     end
 
-    class DefaultHandler
+    class RubyClassLoader
       include ActiveSupport::Inflector
 
       def to_path(name, extension_type)

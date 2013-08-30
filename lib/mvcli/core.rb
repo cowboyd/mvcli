@@ -12,6 +12,7 @@ module MVCLI
     def initialize(options = {})
       options = Map options
       @path = options[:path] or fail ArgumentError
+      @path = MVCLI::Path.new(@path) if @path.is_a?(String)
       @loader = options[:loader] or fail ArgumentError
       @namespace = options[:namespace] || Object
     end

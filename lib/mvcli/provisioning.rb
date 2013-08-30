@@ -6,7 +6,6 @@ require "mvcli/loader"
 module MVCLI
   module Provisioning
     extend ActiveSupport::Concern
-    UnsatisfiedRequirement = Class.new StandardError
     MissingScope = Class.new StandardError
 
     module ClassMethods
@@ -18,13 +17,19 @@ module MVCLI
     end
 
     class Scope
-      def initialize(command, provisioner)
+      attr_reader :command, :cortex
+
+      def initialize(command, cortex)
         @command = command
-        @provisioner = provisioner
+        @cortex = cortex
+        @providers = Map command: const(command), cortex: const(cortex)
       end
 
       def [](name)
-        name.to_s == "command" ? @command : @provisioner[name]
+        unless provider = @providers[name]
+          provider = @providers[name] = @cortex.access :provider, name
+        end
+        provider.respond_to?(:value) ? provider.value : provider.new.value
       end
 
       def evaluate
@@ -33,6 +38,10 @@ module MVCLI
         yield
       ensure
         self.class.current = old
+      end
+
+      def const(value)
+        Constant.new value
       end
 
       def self.current
@@ -48,27 +57,13 @@ module MVCLI
       end
 
       def self.[](name)
-        current![name] or fail UnsatisfiedRequirement, "'#{name}' is required, but can't find it"
+        current![name]
       end
-    end
+      class Constant
+        attr_reader :value
 
-    class Provisioner
-      def initialize
-        @loader = Loader.new
-        @providers = Map.new
-      end
-      def [](name)
-        unless provider = @providers[name]
-          provider = @providers[name] = @loader.load :provider, name
-        end
-        provider.value
-      end
-    end
-
-    class Middleware
-      def call(command)
-        Scope.new(command, Provisioner.new).evaluate do
-          yield command
+        def initialize(value)
+          @value = value
         end
       end
     end
