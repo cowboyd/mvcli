@@ -1,7 +1,5 @@
 require "map"
 require "active_support/concern"
-require "active_support/dependencies"
-require "mvcli/loader"
 
 module MVCLI
   module Provisioning
@@ -40,25 +38,30 @@ module MVCLI
         self.class.current = old
       end
 
+      private
+
       def const(value)
         Constant.new value
       end
 
-      def self.current
-        Thread.current[self.class.name]
+      class << self
+        def current
+          Thread.current[self.class.name]
+        end
+
+        def current!
+          current or fail MissingScope, "attempting to access scope, but none is active!"
+        end
+
+        def current=(scope)
+          Thread.current[self.class.name] = scope
+        end
+
+        def [](name)
+          current![name]
+        end
       end
 
-      def self.current!
-        current or fail MissingScope, "attempting to access scope, but none is active!"
-      end
-
-      def self.current=(scope)
-        Thread.current[self.class.name] = scope
-      end
-
-      def self.[](name)
-        current![name]
-      end
       class Constant
         attr_reader :value
 
