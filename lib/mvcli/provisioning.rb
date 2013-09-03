@@ -1,12 +1,13 @@
 require "map"
-require "active_support/concern"
-
 module MVCLI
   module Provisioning
-    extend ActiveSupport::Concern
     MissingScope = Class.new StandardError
 
-    module ClassMethods
+    def self.included(base)
+      base.send :extend, Requires
+    end
+
+    module Requires
       def requires(*deps)
         deps.each do |dep|
           self.send(:define_method, dep) {Scope[dep]}
@@ -25,7 +26,7 @@ module MVCLI
 
       def [](name)
         unless provider = @providers[name]
-          provider = @providers[name] = @cortex.access :provider, name
+          provider = @providers[name] = @cortex.read :provider, name
         end
         provider.respond_to?(:value) ? provider.value : provider.new.value
       end
