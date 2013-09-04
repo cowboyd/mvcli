@@ -1,4 +1,5 @@
 require "map"
+
 module MVCLI
   module Provisioning
     MissingScope = Class.new StandardError
@@ -15,20 +16,29 @@ module MVCLI
       end
     end
 
-    class Scope
-      attr_reader :command, :cortex
 
-      def initialize(command, cortex)
-        @command = command
-        @cortex = cortex
-        @providers = Map command: const(command), cortex: const(cortex)
+    ::Object.send :include, self
+
+    class Scope
+      requires :cortex
+      attr_reader :command
+
+      def initialize(options = {}, &block)
+        @providers = Map options
+        evaluate &block if block_given?
       end
 
       def [](name)
         unless provider = @providers[name]
-          provider = @providers[name] = @cortex.read :provider, name
+          provider = @providers[name] = cortex.read :provider, name
         end
-        provider.respond_to?(:value) ? provider.value : provider.new.value
+        if provider.respond_to?(:value)
+          provider.value
+        elsif provider.respond_to?(:new)
+          provider.new.value
+        else
+          provider
+        end
       end
 
       def evaluate
@@ -71,6 +81,5 @@ module MVCLI
         end
       end
     end
-    ::Object.send :include, self
   end
 end

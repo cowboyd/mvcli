@@ -5,7 +5,7 @@ describe "Provisioning" do
   use_natural_assertions
 
   describe "Scope" do
-    Given(:scope) { MVCLI::Provisioning::Scope.new command, cortex }
+    Given(:scope) { MVCLI::Provisioning::Scope.new options }
     Given(:command) { double(:Command) }
     Given(:cortex) { double :Cortex }
     Given(:mod) { Module.new {include MVCLI::Provisioning} }
@@ -14,19 +14,22 @@ describe "Provisioning" do
 
     context "when the command is required" do
       Given { mod.requires :command }
+      Given(:options) { {command: command} }
       When(:result) { scope.evaluate { obj.command } }
       Then { result == command }
     end
     context "when the cortex is required" do
       Given { mod.requires :cortex }
+      Given(:options) { {cortex: cortex} }
       Then { scope.evaluate { obj.cortex } == cortex }
     end
     context "with a requirement is specified on the module" do
+      Given(:options) { {cortex: cortex} }
       Given { mod.requires :foo }
       context "when reading it but it is not present" do
         Given { cortex.stub(:read) { fail "no such provider" } }
         When(:result) { scope.evaluate { obj.foo } }
-        Then { result.should have_failed }
+        Then { result.should have_failed StandardError, /no such/ }
         And { cortex.should have_received(:read).with(:provider, :foo)}
       end
       context "and there is a scope which satisfies the requirement" do
