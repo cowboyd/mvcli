@@ -11,8 +11,8 @@ describe "A Cortex" do
   end
 
   describe "with a few cores" do
-    Given(:core1) { cortex << double(:Core1) }
-    Given(:core2) { cortex << double(:Core2) }
+    Given(:core1) { add_core :Core1 }
+    Given(:core2) { add_core :Core2 }
 
     context "when we access an object" do
       When(:extension) { cortex.read :controller, "admin/users" }
@@ -40,5 +40,11 @@ describe "A Cortex" do
         end
       end
     end
+  end
+
+  def add_core(name)
+    core = double name
+    cortex << core
+    return core
   end
 end

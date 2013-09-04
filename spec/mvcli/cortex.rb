@@ -2,14 +2,21 @@ require "mvcli/core"
 
 module MVCLI
   class Cortex
+    include Enumerable
+
     def initialize
       @cores = []
+      yield self if block_given?
     end
 
     def <<(core)
-      core.tap do
+      tap do
         @cores << core
       end
+    end
+
+    def each(&block)
+      @cores.each &block
     end
 
     def exists?(extension_point, extension_name)
