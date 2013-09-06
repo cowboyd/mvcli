@@ -6,7 +6,7 @@ describe "Provisioning" do
 
   describe "Scope" do
     Given(:scope) { MVCLI::Provisioning::Scope.new options }
-    Given(:command) { double(:Command) }
+    Given(:command) { double :Command }
     Given(:cortex) { double :Cortex }
     Given(:mod) { Module.new {include MVCLI::Provisioning} }
     Given(:cls) { m = mod; Class.new {include m} }
@@ -31,6 +31,14 @@ describe "Provisioning" do
         When(:result) { scope.evaluate { obj.foo } }
         Then { result.should have_failed StandardError, /no such/ }
         And { cortex.should have_received(:read).with(:provider, :foo)}
+        context "but it is manually specified in an enclosing block" do
+          When(:result) { scope.evaluate(foo: 'bar') { obj.foo} }
+          Then { result == 'bar' }
+          context "and then not" do
+            When(:result) { scope.evaluate { obj.foo } }
+            Then { result.should have_failed }
+          end
+        end
       end
       context "and there is a scope which satisfies the requirement" do
         Given(:foo) { Object.new }

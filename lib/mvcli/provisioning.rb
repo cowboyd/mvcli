@@ -21,7 +21,6 @@ module MVCLI
 
     class Scope
       requires :cortex
-      attr_reader :command
 
       def initialize(options = {}, &block)
         @providers = Map options
@@ -41,11 +40,14 @@ module MVCLI
         end
       end
 
-      def evaluate
+      def evaluate(names = {})
         old = self.class.current
+        providers = @providers
+        @providers = Map @providers.to_h.merge(names)
         self.class.current = self
         yield
       ensure
+        @providers = providers
         self.class.current = old
       end
 
