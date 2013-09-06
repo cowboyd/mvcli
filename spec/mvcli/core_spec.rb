@@ -10,7 +10,7 @@ describe "MVCLI Cores" do
 
   describe "with explicit values for path and namespace" do
     Given(:core) { MVCLI::Core.new path: path, namespace: namespace}
-    Given(:path) { double(:Path) }
+    Given(:path) { MVCLI::Path.new '/path/to/the/core' }
     Given(:namespace) { Module.new }
 
 
@@ -46,6 +46,7 @@ describe "MVCLI Cores" do
 
   describe "resolving the namespace" do
     When(:namespace) { core.namespace }
+    Invariant { MVCLI::Core.member? core.class }
 
     describe "when the class is anonymous" do
       Given(:core) { Class.new(MVCLI::Core).new }
@@ -66,6 +67,7 @@ describe "MVCLI Cores" do
         end
       end
       Then { namespace == MVCLI::Test }
+      And { core.name == 'mvcli-test' }
       describe "but the namespace class attribute is set" do
         Given { core.class.namespace = MVCLI }
         Then { namespace == MVCLI }

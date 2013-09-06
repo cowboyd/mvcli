@@ -19,11 +19,15 @@ module MVCLI
     def path
       path = @path || self.class.path
       fail InvalidPath, "core cannot have a nil path" unless path
-      path.is_a?(String) ? MVCLI::Path.new(path) : path
+      path.is_a?(MVCLI::Path) ? path : MVCLI::Path.new(path.to_s)
     end
 
     def namespace
       @namespace || self.class.namespace || enclosing_namespace || Object
+    end
+
+    def name
+      namespace.name.gsub('::', '-').downcase unless namespace == Object
     end
 
     def exists?(extension_type, name)
@@ -54,7 +58,24 @@ module MVCLI
     end
 
     class << self
+      include Enumerable
       attr_accessor :path, :namespace
+
+      def inherited(base)
+        ::MVCLI::Core << base
+      end
+
+      def all
+        @all ||= []
+      end
+
+      def <<(base)
+        all << base
+      end
+
+      def each(&visitor)
+        all.each &visitor
+      end
     end
   end
 end
