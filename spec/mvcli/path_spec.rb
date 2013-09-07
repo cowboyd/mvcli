@@ -7,5 +7,6 @@ describe "MVCLI::Path" do
 
   Then { path.exists? 'does/exist' }
   Then { not path.exists? 'does/not/exist' }
-  Then { path.read('does/exist') == "Hello World" }
+  Then { path.read('does/exist') == "Hello World"}
+  Then { path.to_s('flim flam')  =~ %r{mvcli/spec/mvcli/path_spec/flim flam} }
 end
