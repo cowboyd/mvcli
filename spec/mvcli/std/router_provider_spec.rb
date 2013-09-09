@@ -12,7 +12,7 @@ describe "router provider" do
     Given(:command) { double(:Command, :argv => ['foo']) }
     When(:router) { provider.value }
     context "when the routes file is in the standard place" do
-      Given { app.path.stub(:read) { 'match "foo" => proc {}' } }
+      Given { app.path.stub(:read) { 'match "foo" => -> {}' } }
       Given { app.path.stub(:to_s) { 'routes.rb' } }
 
       Then { router[command] }

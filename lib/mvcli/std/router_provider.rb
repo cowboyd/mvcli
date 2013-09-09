@@ -5,9 +5,9 @@ module MVCLI
     requires :app
 
     def value
-      router = Router.new
-      router.instance_eval app.path.read('routes.rb'), app.path.to_s('routes.rb'), 1
-      return router
+      builder = Router::DSL.new
+      builder.instance_eval app.path.read('routes.rb'), app.path.to_s('routes.rb'), 1
+      return builder.router
     end
   end
 end
