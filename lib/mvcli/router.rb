@@ -5,21 +5,14 @@ require "mvcli/argv"
 module MVCLI
   class Router
     class RoutingError < StandardError; end
+    requires :actions
 
-    def initialize(actions = nil)
-      @actions = actions || Map.new
+    attr_reader :routes
+    attr_reader :macros
+
+    def initialize
       @routes = []
       @macros = []
-    end
-
-    def macro(options)
-      @macros.push Macro.new options
-    end
-
-    def match(options)
-      pattern, action = options.first
-      options.delete pattern
-      @routes << Route.new(pattern, @actions, action, options)
     end
 
     def call(command)
@@ -27,11 +20,31 @@ module MVCLI
         macro.expand args
       end
       @routes.each do |route|
-        if match = route.match(argv)
-          return match.call command
+        if action = route.match(argv)
+          return action
         end
       end
       fail RoutingError, "no route matches '#{command.argv.join ' '}'"
+    end
+
+    alias_method :[], :call
+
+    class DSL < BasicObject
+      attr_reader :router
+
+      def initialize
+        @router = Router.new
+      end
+
+      def macro(options)
+        @router.macros.push Macro.new options
+      end
+
+      def match(options)
+        pattern, action = options.first
+        options.delete pattern
+        @router.routes << Route.new(router, pattern, action, options)
+      end
     end
 
     class Macro
@@ -45,19 +58,16 @@ module MVCLI
     end
 
     class Route
-      def initialize(pattern, actions, action, options = {})
+      def initialize(router, pattern, action, options = {})
         @pattern = Pattern.new pattern.to_s
-        @actions, @action, @options = actions, action, options
+        @router, @action, @options = router, action, options
       end
 
       def match(argv)
         argv = MVCLI::Argv.new argv
         match = @pattern.match(argv.arguments)
         if match.matches?
-          proc do |command|
-            action = @actions[@action] or fail "no action found for #{@action}"
-            action.call command, match.bindings
-          end
+          @router.actions.new match, @action
         end
       end
     end

@@ -4,15 +4,12 @@ require "mvcli/router"
 describe "MVCLI::Router" do
   use_natural_assertions
 
-  Given(:Router) { MVCLI::Router }
+  Given(:Router) { MVCLI::Router}
+  Given(:routes) { self.Router::DSL.new }
+  Given(:router) { routes.router }
   Given(:actions) { double(:Actions) }
-  Given(:router) { self.Router.new actions }
-  Given do
-    actions.stub(:[]) do |action|
-      @action = action
-      ->(command, bindings) {@command = command; @bindings = bindings}
-    end
-  end
+  Given { actions.stub(:new) { |match, mapping| Map match: match, mapping: mapping } }
+  Given { router.stub(:actions) { actions } }
 
   def invoke(route = '')
     router.call double(:Command, :argv => route.split(/\s+/))
@@ -24,37 +21,34 @@ describe "MVCLI::Router" do
   end
 
   context "with a route matched to an action" do
-    Given { router.match 'login' => 'logins#create' }
-    When { invoke 'login' }
-    Then { @action == 'logins#create' }
-    And { not @command.nil? }
-    Then { @command.argv == ['login'] }
+    Given { routes.match 'login' => 'logins#create' }
+    When(:action) { invoke 'login' }
+    Then { action.mapping == 'logins#create' }
   end
 
   context "when there are command line options, it does not interfere" do
-    Given { router.match 'login' => 'logins#create' }
-    When { invoke 'login --then --go-away -f 6 -p' }
-    Then { not @command.nil? }
+    Given { routes.match 'login' => 'logins#create' }
+    When(:action) { invoke 'login --then --go-away -f 6 -p' }
+    Then { action.mapping == 'logins#create' }
   end
 
   context "with a route matched to a block" do
-    Given { router.match bam: ->(command) {@command = command} }
-    When { invoke 'bam' }
-    Then { @command.argv == ['bam'] }
+    Given { routes.match bam: ->(command) { command } }
+    When(:action) { invoke 'bam' }
+    Then { action.mapping.call('foo') == 'foo' }
   end
 
   context "with a route with captures" do
-    Given { router.match 'show loadbalancer :id' => 'loadbalancers#show' }
-    When { invoke 'show loadbalancer 6' }
-    Then {@action == 'loadbalancers#show'}
-    And { @command.argv == ['show', 'loadbalancer', '6'] }
-    And { @bindings[:id] == '6' }
+    Given { routes.match 'show loadbalancer :id' => 'loadbalancers#show' }
+    When(:action) { invoke 'show loadbalancer 6' }
+    Then { action.mapping == 'loadbalancers#show'}
+    Then { action.match.bindings[:id] == '6' }
   end
 
   context "with macros" do
-    Given { router.macro /(-h|--help) (.*)/ => "help \\2" }
-    Given { router.match "help me" => "help#me"}
-    When { invoke "--help me" }
-    Then { @action == 'help#me' }
+    Given { routes.macro /(-h|--help) (.*)/ => "help \\2" }
+    Given { routes.match "help me" => "help#me"}
+    When(:action) { invoke "--help me" }
+    Then { action.mapping == 'help#me' }
   end
 end
