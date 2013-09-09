@@ -77,5 +77,9 @@ module MVCLI
         all.each &visitor
       end
     end
+
+    class Std < self
+      self.path = Pathname(__FILE__).dirname.join 'std'
+    end
   end
 end
