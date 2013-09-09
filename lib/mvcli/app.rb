@@ -1,41 +1,23 @@
-require "mvcli"
-require "mvcli/middleware/exit_status"
-require "mvcli/middleware/exception_logger"
-require_relative "middleware"
-require_relative "command"
-require_relative "actions"
-require_relative "router"
-require_relative "provisioning"
+require "mvcli/bootstrap"
 
 module MVCLI
-  class App
-    def initialize
-      @router = Router.new Actions.new root
-      @router.instance_eval route_file.read, route_file.to_s, 1
-      [:providers, :controllers, :forms, :models].each do |path|
-        ActiveSupport::Dependencies.autoload_paths << root.join('app', path.to_s)
-      end
-      @middleware = Middleware.new
-      @middleware << MVCLI::Middleware::ExitStatus.new
-      @middleware << MVCLI::Middleware::ExceptionLogger.new
-      @middleware << Provisioning::Middleware.new
-      @middleware << @router
-    end
+  class App < MVCLI::Core
+    requires :router
 
     def call(command)
-      @middleware.call command
+      Scope.new(command: command, app: self, cortex: cortex) do
+        action = router[command]
+        action.call command
+      end
     end
 
-    def root
-      self.class.root or fail "Invalid App: undefined application root directory"
-    end
-
-    def route_file
-      root.join 'app/routes.rb'
-    end
-
-    class << self
-      attr_accessor :root
+    def cortex
+      Cortex.new do |cortex|
+        Core.each do |cls|
+          cortex << cls
+        end
+        #discover plugins here
+      end
     end
 
     def main(argv = ARGV.dup, input = $stdin, output = $stdout, log = $stderr, env = ENV.dup)
