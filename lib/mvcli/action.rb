@@ -23,7 +23,7 @@ module MVCLI
       else
         controller_name, method = mapping.to_s.split('#')
         controller = cortex.read :controller, controller_name
-        @enpoint = controller.new method, match.bindings
+        @enpoint = controller.new controller_name, method, match.bindings
       end
     end
   end

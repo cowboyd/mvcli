@@ -26,6 +26,6 @@ describe "MVCLI::Action" do
     When(:result) { action.call command }
     Then { result == controller.call }
     Then { cortex.should have_received(:read).with(:controller, 'servers') }
-    Then { controller_class.should have_received(:new).with 'show', match.bindings }
+    Then { controller_class.should have_received(:new).with 'servers', 'show', match.bindings }
   end
 end
