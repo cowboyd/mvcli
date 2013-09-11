@@ -2,6 +2,7 @@ module MVCLI
   class Middleware
     def initialize
       @apps = []
+      yield self if block_given?
     end
 
     def call(command, apps = @apps, &block)
@@ -28,5 +29,8 @@ module MVCLI
       @apps << app
     end
 
+    def length
+      @apps.length
+    end
   end
 end
