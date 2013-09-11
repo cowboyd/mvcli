@@ -4,8 +4,8 @@ module MVCLI
       @apps = []
     end
 
-    def call(command, apps = @apps)
-      app, *rest = apps
+    def call(command, apps = @apps, &block)
+      app, *rest = apps + [block].compact
       if app
         app.call(command) do |yielded|
           yielded ||= command
