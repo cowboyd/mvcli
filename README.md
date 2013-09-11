@@ -1,11 +1,45 @@
-## Mvcli
+## MVCLI
 [![Gem Version](https://badge.fury.io/rb/mvcli.png)](http://badge.fury.io/rb/mvcli)
 [![Build Status](https://travis-ci.org/cowboyd/mvcli.png?branch=master)](https://travis-ci.org/cowboyd/mvcli)
 [![Dependency Status](https://gemnasium.com/cowboyd/mvcli.png)](https://gemnasium.com/cowboyd/mvcli)
 
-This is still an experiment, but I am beginning to suspect it will be nice.
+MVCLI is an first-class application framework for building command
+line applications.
 
-For an example of an application that uses this, see [rumm][1]
+If you are familiar with other request-based MVC frameworks like Ruby
+on Rails, then you will feel right at home with mvcli.
+
+For an example of an application that uses this, see [rumm][1] 
+
+### Getting Started
+
+First, you will need to install the mvcli gem:
+
+```
+$ gem install mvcli
+```
+
+Now you can generate your mvcli application using the bundled `mvcli`
+tool which is itself an application that uses the mvcli framework:
+
+```
+$ mvcli create application my-app
+generating my-app in my-app/
+  create my-app.gemspec
+  create app.rb
+  create app/routes.rb
+  create app/controllers
+  create app/controllers/.gitkeep
+  create app/templates
+  create app/templates/.gitkeep
+  create bin
+  create bin/my-app
+  create lib
+  create lib/my/app.rb
+  create lib/my/app/version.rb
+  create Gemfile
+```
+
 
 ### Cores
 
