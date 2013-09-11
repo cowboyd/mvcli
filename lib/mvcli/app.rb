@@ -1,14 +1,18 @@
-require "mvcli/bootstrap"
+require "mvcli/action"
 
 module MVCLI
   class App < MVCLI::Core
     requires :router
 
     def call(command)
-      Scope.new(command: command, app: self, cortex: cortex) do
+      Scope.new(bootstrap) do
         action = router[command]
         action.call command
       end
+    end
+
+    def bootstrap
+      Map command: command, app: self, cortex: cortex, actions: Action
     end
 
     def cortex
