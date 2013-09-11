@@ -4,7 +4,7 @@ require "mvcli/middleware"
 describe "MVCLI::Middleware" do
   before do
     @middleware = MVCLI::Middleware.new
-    @command = mock(:Command)
+    @command = double(:Command)
   end
 
   it "runs perfectly fine without any apps" do
