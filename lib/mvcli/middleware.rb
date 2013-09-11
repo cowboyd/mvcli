@@ -4,8 +4,16 @@ module MVCLI
       @apps = []
     end
 
-    def call(command)
-      invoke command, 0
+    def call(command, apps = @apps)
+      app, *rest = apps
+      if app
+        app.call(command) do |yielded|
+          yielded ||= command
+          call yielded, rest
+        end
+      else
+        return 0
+      end
     end
 
     def [](idx)
@@ -20,19 +28,5 @@ module MVCLI
       @apps << app
     end
 
-    private
-
-    def invoke(command, index)
-      if app = @apps[index]
-        app.call(command) do |c|
-          if @apps[index + 1]
-            c ||= command
-            invoke c, index + 1
-          end
-        end
-      else
-        return 0
-      end
-    end
   end
 end
