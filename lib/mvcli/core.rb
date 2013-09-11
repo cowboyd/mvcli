@@ -18,7 +18,7 @@ module MVCLI
 
     def path
       path = @path || self.class.path
-      fail InvalidPath, "core cannot have a nil path" unless path
+      fail InvalidPath, "core `#{name}` cannot have a nil path" unless path
       path.is_a?(MVCLI::Path) ? path : MVCLI::Path.new(path.to_s)
     end
 
@@ -31,7 +31,7 @@ module MVCLI
     end
 
     def exists?(extension_type, name)
-      loader.exists? @path, extension_type, name
+      loader.exists? path, extension_type, name
     end
 
     def read(extension_type, name, options = {})
