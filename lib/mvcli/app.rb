@@ -10,7 +10,7 @@ module MVCLI
     def call(command)
       Scope.new(bootstrap command) do
         action = router[command]
-        action.call command
+        return action.call command
       end
     end
 
