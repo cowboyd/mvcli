@@ -80,6 +80,7 @@ module MVCLI
 
     class Std < self
       self.path = Pathname(__FILE__).dirname.join 'std'
+      self.namespace = MVCLI
     end
   end
 end
