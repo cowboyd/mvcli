@@ -37,17 +37,13 @@ module MVCLI
       end
 
       def define(name, bytes, extension_type, namespace)
-        eval bytes, blank_slate, to_path(name, extension_type), 1
+        eval bytes, TOPLEVEL_BINDING, to_path(name, extension_type), 1
         components = [namespace.name, classify("#{name}_#{extension_type}")]
         components.shift if namespace == Object
         lookup components.join('::'), to_path(name, extension_type)
       end
 
       private
-
-      def blank_slate
-        BasicObject.new.instance_eval { Kernel.binding }
-      end
 
       def lookup(class_name, filename)
         constantize class_name
