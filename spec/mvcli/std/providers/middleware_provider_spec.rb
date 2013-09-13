@@ -1,5 +1,5 @@
 require "spec_helper"
-require "mvcli/std/middleware_provider"
+require "mvcli/std/providers/middleware_provider"
 
 describe "building middleware" do
   use_natural_assertions

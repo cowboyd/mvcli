@@ -1,5 +1,5 @@
 require "spec_helper"
-require "mvcli/std/router_provider"
+require "mvcli/std/providers/router_provider"
 
 describe "router provider" do
   use_natural_assertions
@@ -11,6 +11,7 @@ describe "router provider" do
   describe "creating the default router" do
     Given(:command) { double(:Command, :argv => ['foo']) }
     When(:router) { provider.value }
+    When { router.stub(:actions) { double(:Actions, :new => true) } }
     context "when the routes file is in the standard place" do
       Given { app.path.stub(:read) { 'match "foo" => -> {}' } }
       Given { app.path.stub(:to_s) { 'routes.rb' } }
