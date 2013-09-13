@@ -33,7 +33,7 @@ module MVCLI
         end
         if provider.respond_to?(:value)
           provider.value
-        elsif provider.respond_to?(:new)
+        elsif provider.respond_to?(:instance_methods) && provider.instance_methods.member?(:value)
           provider.new.value
         else
           provider
