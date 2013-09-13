@@ -45,6 +45,10 @@ module MVCLI
         options.delete pattern
         @router.routes << Route.new(router, pattern, action, options)
       end
+
+      def proc(&body)
+        ::Proc.new &body
+      end
     end
 
     class Macro
