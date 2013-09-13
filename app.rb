@@ -2,6 +2,6 @@ require "mvcli/app"
 
 module MVCLI
   class CLI < ::MVCLI::App
-    self.path = Pathname(__FILE__).dirname
+    self.path = File.expand_path '../app', __FILE__
   end
 end
