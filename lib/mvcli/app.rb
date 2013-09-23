@@ -15,7 +15,10 @@ module MVCLI
     end
 
     def bootstrap(command)
-      Map command: command, app: self, cortex: cortex, loader: loader, actions: Action
+      Map command: command, argv: argv, app: self, cortex: cortex, loader: loader, actions: Action
+    end
+
+    def argv
     end
 
     def cortex
@@ -28,7 +31,9 @@ module MVCLI
     end
 
     def loader
-      MVCLI::Loader.new
+      #TODO: use generic extension mechanism
+      require "mvcli/std/extensions/erb_extension"
+      MVCLI::Loader.new :template => MVCLI::ERBExtension.new
     end
 
     def main(argv = ARGV.dup, input = $stdin, output = $stdout, log = $stderr, env = ENV.dup)
