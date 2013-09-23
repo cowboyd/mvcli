@@ -1,6 +1,19 @@
 require "mvcli/decoding"
 require "mvcli/validatable"
 
+#TODO: need a way to leverage actual input inside error messages
+#   validates(:path, 'no such directory #{path}' ) { path.exist? }
+
+#TODO: need a way to nest validation in order to specify dependencies. e.g.
+#   validates(:path) { path.exist? }.then do
+#     validates(:path) { path.read_first_line == 'BEGIN' }
+#   end
+
+
+#TODO: need a way to validate multiple values. e.g.
+#  validates(:address, :port) { |a, p| address_valid_for_port a, p }
+
+
 module MVCLI
   class Form
     include MVCLI::Validatable
