@@ -1,6 +1,7 @@
 require "mvcli/erb"
 
 class MVCLI::Controller
+  requires :command, :cortex
   attr_reader :params
 
   def initialize(name, method, params)
@@ -9,9 +10,7 @@ class MVCLI::Controller
 
   def call(command)
     response = send @method
-    filename = "views/#{@name}/#{@method}.txt.erb"
-    compiler = MVCLI::ERB.new
-    template = compiler.compile app.path.read(filename), app.path.to_s(filename)
+    template = cortex.read :template, "#{@name}/#{@method}"
     template.call response, command.output
     return 0
   end

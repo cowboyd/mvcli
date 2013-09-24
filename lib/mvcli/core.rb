@@ -8,11 +8,12 @@ module MVCLI
 
   class Core
     requires :loader
-    attr_accessor :path, :namespace
+    attr_accessor :path, :name, :namespace
 
     def initialize(options = {})
       options = Map options
       @path = options[:path]
+      @name = options[:name]
       @namespace = options[:namespace]
     end
 
@@ -27,7 +28,7 @@ module MVCLI
     end
 
     def name
-      namespace.name.gsub('::', '-').downcase unless namespace == Object
+      @name || self.class.identifier || namespace.name.gsub('::', '-').downcase unless namespace == Object
     end
 
     def exists?(extension_type, name)
@@ -59,7 +60,7 @@ module MVCLI
 
     class << self
       include Enumerable
-      attr_accessor :path, :namespace
+      attr_accessor :path, :identifier, :namespace
 
       def inherited(base)
         ::MVCLI::Core << base

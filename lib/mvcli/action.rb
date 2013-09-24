@@ -21,6 +21,7 @@ module MVCLI
       if mapping.respond_to? :call
         @endpoint = mapping
       else
+        require "mvcli/controller"
         controller_name, method = mapping.to_s.split('#')
         controller = cortex.read :controller, controller_name
         @enpoint = controller.new controller_name, method, match.bindings

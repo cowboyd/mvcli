@@ -1,0 +1,3 @@
+#!/usr/bin/env ruby
+# -*- ruby -*-
+load File.expand_path '../../apps/trivium/bin/trivium', __FILE__
