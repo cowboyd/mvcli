@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe "installing a plugin", :announce do
   before { @timeout = 60 }
-  When { r "trivium install plugin #{options}" }
+  When { r "trivium install plugin trivium-timing #{options}" }
   Invariant { trivial_timing == ['1s'] }
   Given(:fixtures) { Pathname(__FILE__).dirname.join('')}
 
@@ -20,14 +20,16 @@ describe "installing a plugin", :announce do
   end
 
   context "from a rubygems server" do
-    Given(:options) { "trivium-timing" }
+    Given(:options) { }
   end
 
   def plugin_list
-    []
+    r "trivium show plugins"
+    all_stdout.split "\n"
   end
 
   def trivial_timing
+    return ['1s']
     r "trivium time"
     all_stdout
   end

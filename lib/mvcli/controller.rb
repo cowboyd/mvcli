@@ -1,4 +1,5 @@
 require "mvcli/erb"
+require "mvcli/form"
 
 class MVCLI::Controller
   requires :command, :cortex

@@ -1,14 +1,28 @@
-require "mvcli/form"
-
 class MVCLI::PluginsController < MVCLI::Controller
-  requires :cortex, :argv
+  requires :cortex, :argv, :bundle
 
   def install
-    template = cortex.read :form, "plugins/install"
+    @installation = bundle.replace params[:name], form.attributes
+    respond_with @installation
+  end
+
+  def index
+    @plugins = bundle.plugins
+    respond_with @plugins
+  end
+
+  ## TODO
+  ## move this elsewhere
+
+  def form
+    template = cortex.read :form, "#{@name}/#{@method}"
     form = template.new argv.options
     form.validate!
-    form.value
-    model = cortex.read :model, "plugins/installation"
-    model.new form
+    form
   end
+
+  def respond_with(response, options = {})
+    response
+  end
+
 end
