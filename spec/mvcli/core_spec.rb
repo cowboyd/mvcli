@@ -67,7 +67,7 @@ describe "MVCLI Cores" do
         end
       end
       Then { namespace == MVCLI::Test }
-      And { core.name == 'mvcli-test' }
+      And { core.name == 'mvcli-test-mycore' }
       describe "but the namespace class attribute is set" do
         Given { core.class.namespace = MVCLI }
         Then { namespace == MVCLI }

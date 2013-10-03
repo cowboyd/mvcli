@@ -4,6 +4,6 @@
 Gem::Specification.new do |spec|
   spec.name = "trivium-timing"
   spec.version = "1.0.0"
-  spec.files = [__FILE__]
-  spec.add_dependency 'addressable'
+  spec.files = [__FILE__, 'app/routes.rb', 'lib/trivium-timing']
+  spec.require_paths = ['lib']
 end

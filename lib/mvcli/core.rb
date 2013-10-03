@@ -7,6 +7,7 @@ module MVCLI
   class InvalidPath < StandardError; end
 
   class Core
+
     requires :loader
     attr_accessor :path, :name, :namespace
 
@@ -15,6 +16,9 @@ module MVCLI
       @path = options[:path]
       @name = options[:name]
       @namespace = options[:namespace]
+    end
+
+    def activate!
     end
 
     def path
@@ -28,7 +32,7 @@ module MVCLI
     end
 
     def name
-      @name || self.class.identifier || namespace.name.gsub('::', '-').downcase unless namespace == Object
+      @name || self.class.identifier || self.class.name.gsub('::', '-').downcase unless namespace == Object
     end
 
     def exists?(extension_type, name)
@@ -76,6 +80,11 @@ module MVCLI
 
       def each(&visitor)
         all.each &visitor
+      end
+
+      def drain(&visitor)
+        each &visitor
+        all.clear
       end
     end
 

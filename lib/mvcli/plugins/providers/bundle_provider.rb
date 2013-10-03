@@ -5,12 +5,16 @@ class MVCLI::BundleProvider
     self
   end
 
+  def activate!
+    require activatefile if activatefile.exist?
+  end
+
   def replace(name, options = {})
     require 'bundler'
     builder.dependencies.reject! { |dep| dep.name == name }
     dep, *rest = builder.gem name, options
-    write!
     update! name
+    write!
     return dep
   end
 
@@ -32,6 +36,14 @@ class MVCLI::BundleProvider
 
   def lockfile
     dir.join 'Gemfile.lock'
+  end
+
+  def setupfile
+    dir.join 'bundle/bundler/setup.rb'
+  end
+
+  def activatefile
+    dir.join 'activate.rb'
   end
 
   def dir
@@ -57,7 +69,20 @@ class MVCLI::BundleProvider
         if req = dep.requirements_list.first
           file << %|, "#{req}"|
         end
+        options = dep.source ? dep.source.options || {} : {}
+        options = Hash[options.map { |k, v| [k,v.to_s]}]
+        options.merge! "require" =>  dep.autorequire if dep.autorequire
+        file << %|, #{options.inspect}|
         file << "\n"
+      end
+    end
+    activatefile.open "w" do |file|
+      file.puts "require #{setupfile.to_s.inspect}"
+      builder.dependencies.each do |dep|
+        require_names = dep.autorequire || [dep.name]
+        require_names.each do |name|
+          file.puts "require #{name.inspect}"
+        end
       end
     end
   end

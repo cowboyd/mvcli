@@ -9,6 +9,7 @@ module MVCLI
 
     def call(command)
       Scope.new(bootstrap command) do
+        cortex.activate!
         action = router[command]
         return action.call command
       end
@@ -22,11 +23,10 @@ module MVCLI
     end
 
     def cortex
-      Cortex.new do |cortex|
-        Core.each do |cls|
+      @cortex ||= Cortex.new do |cortex|
+        Core.drain do |cls|
           cortex << cls.new if cls.path
         end
-        #discover plugins here
       end
     end
 

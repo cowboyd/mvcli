@@ -9,6 +9,10 @@ module MVCLI
       yield self if block_given?
     end
 
+    def activate!
+      each(&:activate!)
+    end
+
     def <<(core)
       tap do
         @cores << core
