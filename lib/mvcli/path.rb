@@ -18,6 +18,22 @@ module MVCLI
       self.class.new @base.join path
     end
 
+    def nearest(pattern)
+      ancestors.each do |dir|
+        if entry = dir.entries.find { |e| e.to_s.match pattern }
+          return dir.join entry
+        end
+      end
+    end
+
+    def ancestors(dir = @base)
+      if dir == dir.parent
+        []
+      else
+        [dir] + ancestors(dir.parent)
+      end
+    end
+
     def to_s(path = nil)
       path.nil? ? @base.to_s : @base.join(path).to_s
     end

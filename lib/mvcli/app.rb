@@ -16,10 +16,7 @@ module MVCLI
     end
 
     def bootstrap(command)
-      Map command: command, argv: argv, app: self, cortex: cortex, loader: loader, actions: Action
-    end
-
-    def argv
+      Map command: command, app: self, cortex: cortex, loader: loader, actions: Action
     end
 
     def cortex

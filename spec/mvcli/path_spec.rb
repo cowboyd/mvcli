@@ -9,4 +9,5 @@ describe "MVCLI::Path" do
   Then { not path.exists? 'does/not/exist' }
   Then { path.read('does/exist') == "Hello World"}
   Then { path.to_s('flim flam')  =~ %r{mvcli/spec/mvcli/path_spec/flim flam} }
+  Then { path.nearest('spec_helper.rb') == Pathname(__FILE__).parent.parent.join('spec_helper.rb') }
 end

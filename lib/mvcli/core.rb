@@ -35,6 +35,11 @@ module MVCLI
       @name || self.class.identifier || self.class.name.gsub('::', '-').downcase unless namespace == Object
     end
 
+    def version
+      spec = Gem::Specification.load path.nearest('.gemspec$').to_s
+      spec.version
+    end
+
     def exists?(extension_type, name)
       loader.exists? path, extension_type, name
     end
@@ -64,7 +69,7 @@ module MVCLI
 
     class << self
       include Enumerable
-      attr_accessor :path, :identifier, :namespace
+      attr_accessor :path, :identifier, :namespace, :version
 
       def inherited(base)
         ::MVCLI::Core << base
