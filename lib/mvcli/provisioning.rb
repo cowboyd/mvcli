@@ -43,7 +43,7 @@ module MVCLI
       def evaluate(names = {})
         old = self.class.current
         providers = @providers
-        @providers = Map @providers.to_h.merge(names)
+        @providers = Map @providers.to_hash.merge(names)
         self.class.current = self
         yield
       ensure
