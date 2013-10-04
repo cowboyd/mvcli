@@ -1,3 +1,5 @@
+require 'fileutils'
+
 class MVCLI::ConfigProvider
   requires :app
 

@@ -18,6 +18,16 @@ class MVCLI::BundleProvider
     return dep
   end
 
+  def remove(gem_name)
+    require 'bundler'
+    dep = builder.dependencies.find { |d| d.name == gem_name }
+    fail "#{gem_name} is not an installed plugin" unless dep
+    builder.dependencies.reject! { |d| d == dep }
+    update! gem_name
+    write!
+    return dep
+  end
+
   def plugins
     lock.specs.select do |spec|
       builder.dependencies.detect { |dep| dep.name == spec.name }
