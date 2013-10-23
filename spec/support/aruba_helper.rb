@@ -5,10 +5,6 @@ module ArubaHelper
     run_simple File.expand_path("../../fixtures/bin/#{command}", __FILE__), true, @timeout
   end
 
-  def fixture(path)
-    Pathname(__FILE__).dirname.join('../fixtures').join path
-  end
-
   def self.included(base)
     base.before :each, :"disable-bundler" do
       unset_bundler_env_vars
