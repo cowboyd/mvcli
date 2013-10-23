@@ -32,7 +32,7 @@ class MVCLI::Plugins::Installation
   end
 
   def activate!
-    require activatefile_path
+    require activatefile_path if activatefile_path.exist?
   end
 
   def install!
