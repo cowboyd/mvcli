@@ -2,7 +2,7 @@ require "mvcli/erb"
 require "mvcli/form"
 
 class MVCLI::Controller
-  requires :command, :cortex
+  requires :command, :cortex, :argv
   attr_reader :params
 
   def initialize(name, method, params)
@@ -14,5 +14,12 @@ class MVCLI::Controller
     template = cortex.read :template, "#{@name}/#{@method}"
     template.call response, command.output
     return 0
+  end
+
+  def form
+    template = cortex.read :form, "#{@name}/#{@method}"
+    form = template.new argv.options
+    form.validate!
+    form
   end
 end

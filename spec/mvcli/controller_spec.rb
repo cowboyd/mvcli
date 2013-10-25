@@ -19,5 +19,17 @@ describe "A Controller" do
     Then { exit_status == 0 }
     Then { @output == command.output }
     And { cortex.should have_received(:read).with :template, "servers/show"}
+
+    context "when there's a corresponding form" do
+      Given { controller.stub(:argv) { double(:argv, options: {}) } }
+      Given { cortex.stub(:exists?).with(:form, "servers/show") { true } }
+      Given { cortex.stub(:read).with(:form, "servers/show") { double(:Form, new: form) } }
+      Given{ form.stub(:validate!) { true } }
+      Given(:form) { double :form }
+      Then{ controller.form == form }
+    end
+
+    context "when there's not a corresponding form" do
+    end
   end
 end
