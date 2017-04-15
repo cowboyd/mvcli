@@ -6,11 +6,6 @@ class MVCLI::PluginsController < MVCLI::Controller
     respond_with @installation
   end
 
-  def uninstall
-    @installation = bundle.remove params[:name]
-    respond_with @installation
-  end
-
   def index
     @plugins = bundle.plugins
     respond_with @plugins
